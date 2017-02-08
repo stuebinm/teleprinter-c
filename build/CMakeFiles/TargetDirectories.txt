@@ -1,0 +1,3 @@
+/home/matthias/projects/git/teleprinter-c/build/CMakeFiles/rebuild_cache.dir
+/home/matthias/projects/git/teleprinter-c/build/CMakeFiles/edit_cache.dir
+/home/matthias/projects/git/teleprinter-c/build/CMakeFiles/teleprinter.dir
