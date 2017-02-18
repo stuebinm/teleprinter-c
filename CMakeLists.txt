@@ -4,5 +4,9 @@ project (teleprinter-c)
  # executable
 add_executable(teleprinter 
 	src/main.c
+	src/document.c
+	src/layer.c
+	src/parsing.c
+	src/charv.c
 )
 
