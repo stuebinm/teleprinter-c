@@ -3,10 +3,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "commands.h"
+#include "error.h"
 
 
 void parse_main_loop (struct document* doc) {
 	int column_count = 0;
+	skip_whitespace (doc);
 	while ((layer_fetchc (doc->base)) != EOF) {
 		if (skip_whitespace (doc)) {
 			if (column_count > 100) {
@@ -14,9 +17,12 @@ void parse_main_loop (struct document* doc) {
 				column_count = 0;
 			} else doc->printc (' ');
 		}
+		if (doc->c == EOF) break;
 		switch (doc->c) {
-			case '{':
-				printf ("[word: %s]", parse_statement (doc)->array);
+			case '{': ;
+				struct charv* word = parse_statement (doc);
+				printf ("[word: %s]", word->array);
+				charv_free (word);
 				break;
 			case '\\':
 				parse_command (doc);
@@ -27,11 +33,11 @@ void parse_main_loop (struct document* doc) {
 		}
 		column_count++;
 	}
-	
+	printf ("\n");
 }
 
 struct charv* parse_statement (struct document* doc) {
-	struct charv* ret = new_charv (10);
+	struct charv* ret = new_charv (10);	
 	while ( (layer_fetchc (doc->base))) {
 		if (doc->c == '{') {
 			parse_statement (doc);
@@ -39,7 +45,9 @@ struct charv* parse_statement (struct document* doc) {
 		}
 		else if (doc->c == '}') break;
 		else if (doc->c == EOF) parse_error ();
-		charv_append (ret, doc->c);
+		char c = (char) doc->c;
+		charv_append (ret, c);
+		//printf ("%c\n", c);
 	}
 	charv_finalize (ret);
 	return ret;
@@ -71,33 +79,54 @@ int skip_whitespace (struct document* doc) {
 	} while ( (layer_fetchc (doc->base)));
 }
 
+struct charv** get_statements (struct document* doc, int number) {
+	struct charv** ret = malloc (number * sizeof (struct charv));
+	for (int i = 0; i<number; i++) {
+	printf ("\nsearching for %d …\n", i);
+		do {
+			switch (doc->c) {
+				case '{':
+					ret[i] = parse_statement (doc);
+					goto cont;
+				default:
+					break;
+			}
+		}
+		while (layer_fetchc (doc->base));
+	cont: ;
+	}
+	return ret;
+}
+
 void parse_command (struct document* doc) {
-	struct command* command;
-	int argc = 0;
 	struct charv* name = new_charv(10);
-	struct charv* arg0 = 0;
+	struct command* com;
 	while ( (layer_fetchc (doc->base)) ) {
 		switch (doc->c) {
 			case '{':
-				arg0 = parse_statement (doc);
-				//argc++;
 			case ' ':
 			case '\t':
 			case '\n':
-				//command = get_command ();
 				charv_finalize (name);
-				printf ("[command: %s]", name->array);
-				goto endwhile;
+				com = get_command (name->array);
+				if (com == 0) {
+					unknown_command_exit (name->array);
+				}
+				if (com->argc != 0) {
+					printf ("command: %s\n", name->array);
+					struct charv** argv = get_statements (doc, com->argc);
+					doc->printf (com->method (argv));
+					charv_array_free (argv, com->argc);
+				}
+				charv_free (name);
+				return;
+			case EOF:
+				parse_error ();
 			default:
 				charv_append (name, (char) doc->c);
+				break;
 		}
 	}
-	endwhile:
-	if (arg0 != 0) {
-		printf ("[arg0: %s]", arg0->array);
-		charv_free (arg0);
-	}
-	charv_free (name);
 }
 
 char** find_arguments (struct document* doc, int argc) {

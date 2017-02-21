@@ -8,5 +8,7 @@ add_executable(teleprinter
 	src/layer.c
 	src/parsing.c
 	src/charv.c
+	src/commands.c
+	src/error.c
 )
 

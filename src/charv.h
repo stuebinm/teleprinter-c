@@ -14,5 +14,6 @@ void charv_append (struct charv* charv, char c);
 void charv_finalize (struct charv* charv);
 
 void charv_free (struct charv* charv);
+void charv_array_free (struct charv** array, int l);
 
 #endif
