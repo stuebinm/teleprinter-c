@@ -28,6 +28,7 @@ struct document* new_document_from_file (FILE* input) {
 	ret->top->fetchc = &fetch_from_file;
 	ret->top->indata = input;
 	ret->top->next = 0;
+	ret->wordc = 0;
 	
 	ret->mstack = new_macrostack ();
 	document_fetchc (ret);

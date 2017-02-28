@@ -9,15 +9,14 @@
 int d;
 
 void parse_main_loop (struct document* doc) {
-	int column_count = 0;
 	skip_whitespace (doc);
 	d++;
 	do{
 	    main_loop_start:
 		if (skip_whitespace (doc)) {
-			if (column_count > 100) {
+			if (doc->wordc > 60) {
 				doc_putc (doc, '\n');
-				column_count = 0;
+				doc->wordc = 0;
 			} else doc_putc (doc, ' ');
 		}
 		if (doc->c == EOF) break;
@@ -44,7 +43,7 @@ void parse_main_loop (struct document* doc) {
 				doc_putc (doc, (char) doc->c);
 				break;
 		}
-		column_count++;
+		doc->wordc++;
 	} while (document_fetchc (doc) != EOF);
 	d--;
 }

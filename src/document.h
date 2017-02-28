@@ -17,6 +17,7 @@ struct document {
 	struct layer* top;
 	struct mstack* mstack;
 	int c;
+	int wordc;
 };
 
 struct layer {
