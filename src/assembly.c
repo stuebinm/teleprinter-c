@@ -36,5 +36,5 @@ char* custom_method (struct macro* macro, struct charv** argv) {
         i++;
     }
     charv_finalize (ret);
-    return ret->array;
+    return charv_isolate (ret);
 }

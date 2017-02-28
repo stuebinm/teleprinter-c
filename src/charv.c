@@ -45,6 +45,12 @@ void charv_free (struct charv* charv) {
 	free (charv);
 }
 
+char* charv_isolate (struct charv* charv) {
+    char* ret = charv->array;
+    free (charv);
+    return ret;
+}
+
 void charv_array_free (struct charv** array, int l) {
 	for (int i = 0; i<l; i++) {
 		free (array[i]->array);

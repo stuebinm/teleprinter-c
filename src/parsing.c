@@ -172,6 +172,7 @@ void parse_command (struct document* doc) {
 	                charv_finalize (ret);
 	                doc_print (doc, ret->array);
 					free (output);
+					charv_free (ret);
 					charv_array_free (argv, macro->argc);
 				} else doc_print (doc, macro->invoke (macro, 0));
 				msg_log ("macro", name->array);
