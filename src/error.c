@@ -32,7 +32,7 @@ void parse_error () {
 void msg_log (char* name, char* msg) {
     fprintf (stderr, "[%s: %s]", name, msg);
     if (column > LINE_LENGTH) {
-        printf ("\n");
+        fprintf (stderr, "\n");
         column = 0;
     }
     else {

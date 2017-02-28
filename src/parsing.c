@@ -6,7 +6,7 @@
 #include "macrostack.h"
 #include "error.h"
 
-int d = 0;
+int d;
 
 void parse_main_loop (struct document* doc) {
 	int column_count = 0;
@@ -95,7 +95,6 @@ struct charv** get_statements (struct document* doc, int number) {
 					document_fetchc (doc); // fetch the next char; parse_statement leaves at '}'!*/
 					ret[i] = new_charv (10);
 					int d = 1;
-					printf ("\n");
 					while (document_fetchc (doc)) {
 					    switch (doc->c) {
 					        case '{':
@@ -166,16 +165,12 @@ void parse_command (struct document* doc) {
 				if (macro->argc != 0) {
 					struct charv** argv = get_statements (doc, macro->argc);
 					char* output = macro->invoke (macro, argv);
-					printf ("\ncommand: %s (%s) -> %s\n", name->array, argv[0]->array, output);
 					struct charv* ret = new_charv (10);
 	                document_push_layer_command (doc, output, ret);
 	                parse_main_loop (doc);
 	                document_pop_layer (doc);
 	                charv_finalize (ret);
-	                
-					printf ("\ncommand2: %s (%s) -> %s\n", name->array, argv[0]->array, ret->array);
 	                doc_print (doc, ret->array);
-	                printf ("next char is '%c'\n", doc->c);
 					free (output);
 					charv_array_free (argv, macro->argc);
 				} else doc_print (doc, macro->invoke (macro, 0));

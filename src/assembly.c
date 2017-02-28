@@ -35,7 +35,6 @@ char* newcommand_method (struct macro* macro, struct charv** argv) {
 
 char* custom_method (struct macro* macro, struct charv** argv) {
     struct charv* ret = new_charv (argv[0]->length);
-    printf ("custom command low-level: %s\n", macro->data);
     char c = macro->data[0];
     int i = 0;
     while ( (c = macro->data[i]) != '\0') {

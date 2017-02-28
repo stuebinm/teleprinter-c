@@ -43,7 +43,7 @@ int main (int argc, char** argv) {
         }
 		
 		parse_main_loop (doc);
-		
+		printf ("\n");
 		free_document (doc);
 		fclose (input);
 		if (argc == 3) {

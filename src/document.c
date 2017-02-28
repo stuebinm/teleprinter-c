@@ -30,7 +30,7 @@ struct document* new_document_from_file (FILE* input) {
 	ret->top->next = 0;
 	
 	ret->mstack = new_macrostack ();
-	
+	document_fetchc (ret);
 	
 	return ret;
 }

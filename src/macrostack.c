@@ -18,10 +18,10 @@ struct mstack* new_macrostack () {
     
     mstack_set_macro (ret, "emph", 1, &custom_method, "<em>#1</em>");
     mstack_set_macro (ret, "thought", 1, &custom_method, "\\emph{#1}");
-    mstack_set_macro (ret, "chapter*", 1, &chapter_method, 0);
-    mstack_set_macro (ret, "part", 1, &part_method, 0);
-    mstack_set_macro (ret, "chbegin", 2, &chbegin_method, 0);
-    mstack_set_macro (ret, "enquote", 1, &enquote_method, 0);
+    mstack_set_macro (ret, "chapter*", 1, &custom_method, "<h2>#1</h2>");
+    mstack_set_macro (ret, "part", 1, &custom_method, "<h1>#1</h1>");
+    mstack_set_macro (ret, "chbegin", 2, &custom_method, "<h4>#1</h4><b>#2</b>");
+    mstack_set_macro (ret, "enquote", 1, &custom_method, "“#1”");
     
     return ret;
 }
