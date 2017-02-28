@@ -4,8 +4,9 @@
 #include "charv.h"
 
 struct macro;
+struct mstack;
 
-typedef char* (macro_method) (struct macro* macro, struct charv** argv);
+typedef char* (macro_method) (struct mstack* mstack, struct macro* macro, struct charv** argv);
 
 struct macro {
     char* name;

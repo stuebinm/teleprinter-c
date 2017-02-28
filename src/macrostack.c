@@ -23,6 +23,9 @@ struct mstack* new_macrostack () {
     mstack_set_macro (ret, "chbegin", 2, &custom_method, "<h4>#1</h4><b>#2</b>");
     mstack_set_macro (ret, "enquote", 1, &custom_method, "“#1”");
     
+    mstack_set_macro (ret, "newcommand", 2, &newcommand_method, 0);
+    
+    
     return ret;
 }
 
@@ -65,8 +68,9 @@ void mstack_pop_level (struct mstack* mstack) {
         if (mstack->htable[i] == 0) continue;
         struct macro* iter = mstack->htable[i];
         
-        while (iter->story == mstack->top) {
+        while (iter != 0 && iter->story == mstack->top) {
             mstack->htable[i] = iter->next;
+            printf ("freeing:  %s\n", iter->name);
             free_macro (iter);
             iter = mstack->htable[i];
         }

@@ -5,11 +5,12 @@
 #include <string.h>
 
 
-char* newcommand_method (struct macro* macro, struct charv** argv) {
-    return "";
+char* newcommand_method (struct mstack* mstack, struct macro* macro, struct charv** argv) {
+    mstack_set_macro (mstack, argv[0]->array, 1, &custom_method, argv[1]->array);
+    return calloc (1, sizeof (char));
 }
 
-char* custom_method (struct macro* macro, struct charv** argv) {
+char* custom_method (struct mstack* mstack, struct macro* macro, struct charv** argv) {
     struct charv* ret = new_charv (argv[0]->length);
     char c = macro->data[0];
     int i = 0;
@@ -36,5 +37,6 @@ char* custom_method (struct macro* macro, struct charv** argv) {
         i++;
     }
     charv_finalize (ret);
+	charv_array_free (argv, macro->argc);
     return charv_isolate (ret);
 }

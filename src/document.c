@@ -95,6 +95,8 @@ void document_push_layer_str (struct document* doc, struct charv* out) {
 	
 	new->fetchc = &fetch_from_base;
 	new->doc = doc;
+	new->indata = 0;
+	new->outdata = 0;
 	
 	new->outdata = out;
 	new->next = doc->top;
@@ -135,6 +137,7 @@ void document_pop_layer (struct document* doc) {
     if (doc->top == 0) {
         parse_error ();
     }
+    if (old->indata) free (old->indata);
     free (old);
     mstack_pop_level (doc->mstack);
 }

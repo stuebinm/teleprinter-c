@@ -3,10 +3,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/ioctl.h>
 
 #define LINE_LENGTH 50
 
-char column = 0;
+int column = 0;
 
 void error_exit (int code, char* msg) {
 	printf (" >>> ERROR: %s\n", msg);
@@ -30,14 +31,15 @@ void parse_error () {
 }
 
 void msg_log (char* name, char* msg) {
-    fprintf (stderr, "[%s: %s]", name, msg);
-    if (column > LINE_LENGTH) {
+    int l = strlen (name) + strlen (msg) + 4;
+    struct winsize w;
+    ioctl (0, TIOCGWINSZ, &w);
+    column += l;
+    if (column >= w.ws_col) {
         fprintf (stderr, "\n");
-        column = 0;
+        column = l;
     }
-    else {
-        column += strlen (name)+strlen(msg)+10;
-    }
+    fprintf (stderr, "[%s: %s]", name, msg);
 }
 
 void msg_logc (char* name, char c) {

@@ -141,7 +141,7 @@ void parse_command (struct document* doc) {
 	
 	document_fetchc (doc);
 	if ( (doc->c < 65 || doc->c > 90) && (doc->c < 97 || doc->c > 122) && doc->c < 127) {
-        struct charv* name = new_charv (1);
+        
         charv_append (name, doc->c);
         charv_finalize (name);
         doc_putc (doc, doc->c);
@@ -164,7 +164,7 @@ void parse_command (struct document* doc) {
 				}
 				if (macro->argc != 0) {
 					struct charv** argv = get_statements (doc, macro->argc);
-					char* output = macro->invoke (macro, argv);
+					char* output = macro->invoke (doc->mstack, macro, argv);
 					struct charv* ret = new_charv (10);
 	                document_push_layer_command (doc, output, ret);
 	                parse_main_loop (doc);
@@ -173,8 +173,7 @@ void parse_command (struct document* doc) {
 	                doc_print (doc, ret->array);
 					free (output);
 					charv_free (ret);
-					charv_array_free (argv, macro->argc);
-				} else doc_print (doc, macro->invoke (macro, 0));
+				} else doc_print (doc, macro->invoke (doc->mstack, macro, 0));
 				msg_log ("macro", name->array);
 				charv_free (name);
 				return;
