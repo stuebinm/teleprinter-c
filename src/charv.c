@@ -23,6 +23,15 @@ void charv_append (struct charv* charv, char c) {
 	}
 }
 
+void charv_append_array (struct charv* charv, char* a) {
+    char c = a[0];
+    int i = 0;
+    while ( (c = a[i]) != 0) {
+        charv_append (charv, c);
+        i++;
+    }
+}
+
 void charv_finalize (struct charv* charv) {
 	if (charv->length > charv->mem-1) {
 		charv->array = realloc (charv->array, charv->length+1);
@@ -41,4 +50,5 @@ void charv_array_free (struct charv** array, int l) {
 		free (array[i]->array);
 		free (array[i]);
 	}
+	free (array);
 }

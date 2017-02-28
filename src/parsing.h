@@ -16,6 +16,5 @@ void parse_command (struct document* doc);
 
 char** find_arguments (struct document* doc, int argc);
 
-void parse_error ();
 
 #endif

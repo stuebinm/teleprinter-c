@@ -11,6 +11,7 @@ struct charv {
 struct charv* new_charv (int length);
 
 void charv_append (struct charv* charv, char c);
+void charv_append_array (struct charv* charv, char* a);
 void charv_finalize (struct charv* charv);
 
 void charv_free (struct charv* charv);
