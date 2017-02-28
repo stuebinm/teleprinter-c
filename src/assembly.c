@@ -5,30 +5,6 @@
 #include <string.h>
 
 
-char* enquote_method (struct macro* macro, struct charv** argv) {
-	char* ret = malloc (argv[0]->length+6);
-	sprintf (ret, "“%s”", argv[0]->array);
-	return ret;
-}
-
-char* chapter_method (struct macro* macro, struct charv** argv) {
-	char* ret = malloc (argv[0]->length+9);
-	sprintf (ret, "<h2>%s</h2>", argv[0]->array);
-	return ret;
-}
-
-char* chbegin_method (struct macro* macro, struct charv** argv) {
-	char* ret = malloc (argv[1]->length+argv[0]->length+16);
-	sprintf (ret, "<h4>%s</h4><b>%s</b>", argv[0]->array, argv[1]->array);
-	return ret;
-}
-
-char* part_method (struct macro* macro, struct charv** argv) {
-	char* ret = malloc (argv[0]->length+9);
-	sprintf (ret, "<h1>%s</h1>", argv[0]->array);
-	return ret;
-}
-
 char* newcommand_method (struct macro* macro, struct charv** argv) {
     return "";
 }
