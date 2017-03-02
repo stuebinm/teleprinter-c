@@ -22,6 +22,22 @@ void unknown_command_exit (char* command) {
 	exit (1);
 }
 
+void leaving_env_error (char* name) {
+	if (column != 0) {
+        printf ("\n");
+    }
+	printf (" >>> ERROR: Premature end of environment \"%s\"!\n\texiting …\n", name);
+	exit (1);
+}
+
+void eof_error () {
+	if (column != 0) {
+        printf ("\n");
+    }
+	printf (" >>> ERROR: Premature end of file.\n\texiting …\n");
+	exit (1);
+}
+
 void parse_error () {
 	if (column != 0) {
         printf ("\n");

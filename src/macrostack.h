@@ -2,11 +2,14 @@
 #define MACROSTACK_H
 
 #include "charv.h"
+#include "document.h"
+
+struct document;
 
 struct macro;
 struct mstack;
 
-typedef char* (macro_method) (struct mstack* mstack, struct macro* macro, struct charv** argv);
+typedef char* (macro_method) (struct document* doc, struct macro* macro, struct charv** argv);
 
 struct macro {
     char* name;

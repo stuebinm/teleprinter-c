@@ -6,7 +6,7 @@
 #include "macrostack.h"
 #include "error.h"
 
-int d;
+int d = 0;
 
 void parse_main_loop (struct document* doc) {
 	skip_whitespace (doc);
@@ -19,7 +19,6 @@ void parse_main_loop (struct document* doc) {
 				doc->wordc = 0;
 			} else doc_putc (doc, ' ');
 		}
-		if (doc->c == EOF) break;
 		switch (doc->c) {
 			case '{': ;
 				struct charv* word = parse_statement (doc);
@@ -29,10 +28,13 @@ void parse_main_loop (struct document* doc) {
 				break;
 			case '}':
 			    if (d == 0) parse_error();
-			    return;
+			    goto main_end;
+		    case EOF:
+		        if (d != 1)
+		            eof_error ();
+		        goto main_end;
 			case '\\':
 				parse_command (doc);
-				//document_fetchc (doc);
 				goto main_loop_start;
 				break;
 			case '\n':
@@ -44,10 +46,18 @@ void parse_main_loop (struct document* doc) {
 				break;
 		}
 		doc->wordc++;
-	} while (document_fetchc (doc) != EOF);
+	} while (document_fetchc (doc));
+	main_end:
 	d--;
 }
 
+/**
+ * parse_statment:
+ * parses the next statement in its own scope.
+ * @doc: the document.
+ *
+ * Returns: the generated html source.
+*/
 struct charv* parse_statement (struct document* doc) {
 	struct charv* ret = new_charv (10);
 	document_fetchc (doc);
@@ -58,6 +68,11 @@ struct charv* parse_statement (struct document* doc) {
 	return ret;
 }
 
+/**
+ * skip_comment:
+ * Skips a comment.
+ *
+*/
 void skip_comment (struct document* doc) {
 	while (document_fetchc (doc)) {
 		if (doc->c == '\n') return;
@@ -65,33 +80,50 @@ void skip_comment (struct document* doc) {
 	}
 }
 
+/**
+ * skip_whitespace:
+ * skips any unimportant text following the cursor's position (whitespace, comments …)
+ * @doc: the document in question.
+ * 
+ * Returns: if anything was skipped.
+ *
+*/
 int skip_whitespace (struct document* doc) {
 	int s = 0;
 	do {
-	switch (doc->c) {
-		case '%':
-			skip_comment (doc);
-			s = 1;
-			continue;
-		case ' ':
-		//case '\n':
-		case '\t':
-			s = 1;
-			continue;
-		default:
-			return s;
-	}
+	    switch (doc->c) {
+		    case '%':
+			    skip_comment (doc);
+			    s = 1;
+			    continue;
+		    case ' ':
+		    case '\t':
+			    s = 1;
+			    continue;
+		    default:
+			    return s;
+	    }
 	} while (document_fetchc (doc));
 }
 
+/**
+ * get_statements:
+ * gets the next @number statements, but doesn't parse them (that's for #parse_command).
+ * @doc: the document to work on.
+ * @number: the number of statements requested.
+ *
+ * Returns: a charv-array containing @number elements.
+ *
+*/
 struct charv** get_statements (struct document* doc, int number) {
+    if (number == 0) return 0;
 	struct charv** ret = malloc (number * sizeof (struct charv));
 	for (int i = 0; i<number; i++) {
+		start_get_loop:
 		do {
 			switch (doc->c) {
 				case '{':
-					/*ret[i] = parse_statement (doc);
-					document_fetchc (doc); // fetch the next char; parse_statement leaves at '}'!*/
+				    // fetch the i-th statement.
 					ret[i] = new_charv (10);
 					int d = 1;
 					while (document_fetchc (doc)) {
@@ -109,23 +141,23 @@ struct charv** get_statements (struct document* doc, int number) {
 				                }
 				                charv_append (ret[i], doc->c);
 				                break;
+			                case EOF:
+			                    eof_error ();
 			                default:
 			                    charv_append (ret[i], doc->c);
-			                    
 					    }
 					}
 					goto cont;
-				case ' ':
-				case '\n':
-				case '\t':
-					break;
 				default: ;
-				    struct charv* arg = new_charv (1);
-				    msg_logc ("single char argument", doc->c);
-				    charv_append (arg, doc->c);
-				    charv_finalize (arg);
-				    ret[i] = arg;
-				    goto cont;
+				    if (!skip_whitespace (doc)) {
+				        printf ("nothing skipped!\n");
+				        struct charv* arg = new_charv (1);
+				        msg_logc ("single char argument", doc->c);
+				        charv_append (arg, doc->c);
+				        charv_finalize (arg);
+				        ret[i] = arg;
+				        goto cont;
+				    } else goto start_get_loop;
 			}
 		}
 		while (document_fetchc (doc));
@@ -134,13 +166,20 @@ struct charv** get_statements (struct document* doc, int number) {
 	return ret;
 }
 
+/**
+ * parse_command:
+ * assumes there is a command next, fetches and executes it.
+ * @doc: the document in question.
+ *
+*/
 void parse_command (struct document* doc) {
 	struct charv* name = new_charv(10);
 	struct macro* macro;
-	
+
+	 // in case the first character isn't a letter, do a TeX-style char conversion.
+	 // TODO!
 	document_fetchc (doc);
 	if ( (doc->c < 65 || doc->c > 90) && (doc->c < 97 || doc->c > 122) && doc->c < 127) {
-        
         charv_append (name, doc->c);
         charv_finalize (name);
         doc_putc (doc, doc->c);
@@ -158,35 +197,37 @@ void parse_command (struct document* doc) {
 			case '\n':
 				charv_finalize (name);
 				macro = mstack_get_macro (doc->mstack, name->array);
+				
+				 // safeguard; in case the user gives a non-existent one the program will exit here.
 				if (macro == 0) {
 					unknown_command_exit (name->array);
 				}
-				if (macro->argc != 0) {
-					struct charv** argv = get_statements (doc, macro->argc);
-					char* output = macro->invoke (doc->mstack, macro, argv);
-					struct charv* ret = new_charv (10);
-	                document_push_layer_command (doc, output, ret);
-	                parse_main_loop (doc);
-	                document_pop_layer (doc);
-	                charv_finalize (ret);
-	                doc_print (doc, ret->array);
-					free (output);
-					charv_free (ret);
-				} else doc_print (doc, macro->invoke (doc->mstack, macro, 0));
+				
+				 // fetch statements (will return 0 in case none are requested)
+				struct charv** argv = get_statements (doc, macro->argc);
+				 // generate markup.
+				char* output = macro->invoke (doc, macro, argv);
+				 // parse said markup in its own scope.
+				struct charv* ret = new_charv (10);
+                document_push_layer_command (doc, output, ret);
+                parse_main_loop (doc);
+                document_pop_layer (doc);
+                charv_finalize (ret);
+                 // print returned html code.
 				msg_log ("macro", name->array);
+			     // be colloquial
+                doc_print (doc, ret->array);
+                 // free memory
+				free (output);
+				charv_free (ret);
 				charv_free (name);
 				return;
 			case EOF:
 				parse_error ();
 			default:
-			    
 				charv_append (name, (char) doc->c);
 				break;
 		}
 	}
-}
-
-char** find_arguments (struct document* doc, int argc) {
-	parse_error ();
 }
 

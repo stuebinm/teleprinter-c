@@ -25,6 +25,9 @@ struct mstack* new_macrostack () {
     
     mstack_set_macro (ret, "newcommand", 2, &newcommand_method, 0);
     
+    mstack_set_macro (ret, "begin", 0, &begin_env_method, 0);
+    mstack_set_macro (ret, "end", 0, &end_env_method, 0);
+    
     
     return ret;
 }

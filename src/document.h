@@ -37,6 +37,7 @@ void free_document (struct document* doc);
 
 void document_push_layer_str (struct document* doc, struct charv* out);
 void document_push_layer_command (struct document* doc, char* in, struct charv* out);
+void document_push_layer_env (struct document* doc, char* name);
 void document_pop_layer (struct document* doc);
 
 int document_fetchc (struct document* doc);

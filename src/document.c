@@ -39,6 +39,8 @@ struct document* new_document_from_file (FILE* input) {
 void free_document (struct document* doc) {
     struct layer* iter = doc->top;
     
+    if (doc->top->next != 0) eof_error ();
+    
     struct layer* next;
     
     while (next != 0) {
@@ -82,7 +84,7 @@ struct strin_data {
 int fetch_from_string (struct layer* l) {
     struct strin_data* indata= (struct strin_data*) l->indata;
     char c = indata->string [indata->i];
-    if (c == '\0') return EOF;
+    if (c == '\0') return '}';
     indata->i += 1;
     return c;
 }
@@ -130,6 +132,28 @@ void document_push_layer_command (struct document* doc, char* in, struct charv* 
 	
 	mstack_push_level (doc->mstack);
 }
+
+void document_push_layer_env (struct document* doc, char* name) {
+    
+    struct layer* new = malloc (sizeof (struct layer));
+    
+	new->printc = doc->top->printc;
+	new->printf = doc->top->printf;
+	
+	new->fetchc = &fetch_from_base;
+	new->indata = 0;
+	new->outdata = 0;
+	new->doc = doc;
+
+	new->next = doc->top;
+	doc->top = new;
+	new->c = doc->c;
+	
+	mstack_push_level (doc->mstack);
+	
+	
+}
+
 
 void document_pop_layer (struct document* doc) {
     struct layer* old = doc->top;
