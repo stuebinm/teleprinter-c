@@ -148,7 +148,7 @@ struct charv** get_statements (struct document* doc, int number) {
 					    }
 					}
 					goto cont;
-				default: ;
+				default:
 				    if (!skip_whitespace (doc)) {
 				        printf ("nothing skipped!\n");
 				        struct charv* arg = new_charv (1);
