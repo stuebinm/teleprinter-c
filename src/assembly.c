@@ -8,7 +8,8 @@
 
 char* newcommand_method (struct document* doc, struct macro* macro, struct charv** argv) {
     msg_log ("new macro", argv[0]->array);
-    mstack_set_macro (doc->mstack, argv[0]->array, 1, &custom_method, argv[1]->array);
+    mstack_set_macro (doc->mstack, charv_isolate (argv[0]), 1, &custom_method, charv_isolate(argv[1]));
+    free (argv);
     return calloc (1, sizeof (char));
 }
 
@@ -44,13 +45,13 @@ char* custom_method (struct document* doc, struct macro* macro, struct charv** a
 }
 
 char* begin_env_method (struct document* doc, struct macro* macro, struct charv** argv) {
-    
     document_push_layer_env (doc, "document");
     msg_log ("entering env", "document");
 	return calloc (1, sizeof (char));
 }
 
 char* end_env_method (struct document* doc, struct macro* macro, struct charv** argv) {
+
     if (doc->top->next == 0) {
         leaving_env_error ("document");
     }

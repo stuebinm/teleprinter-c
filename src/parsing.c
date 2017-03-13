@@ -37,6 +37,36 @@ void parse_main_loop (struct document* doc) {
 				parse_command (doc);
 				goto main_loop_start;
 				break;
+			case '-':
+			     // code for long dashes.
+			    if (document_fetchc (doc) == '-') {
+			        if (document_fetchc (doc) == '-') {
+			            msg_log ("character identity", "em dash");
+			            doc_print (doc, "&mdash;");
+			            break;
+		            } else {
+			            msg_log ("character identity", "en dash");
+			            doc_print (doc, "&ndash;");
+			            goto main_loop_start;
+			        }
+			    }
+			    else doc_putc (doc, '-');
+			    goto main_loop_start;
+		    case '\'':
+		        doc_print (doc, "’");
+		        break;
+	        case '<':
+	            doc_print (doc, "&lt;");
+	            break;
+	        case '>':
+	            doc_print (doc, "&gt;");
+	            break;
+	        case '&':
+	            doc_print (doc, "&amp;");
+	            break;
+	        case '"':
+	            doc_print (doc, "&quot;");
+	            break;
 			case '\n':
 			    document_fetchc (doc);
 			    if (doc->c != '\n') goto main_loop_start;
@@ -179,12 +209,14 @@ void parse_command (struct document* doc) {
 	 // in case the first character isn't a letter, do a TeX-style char conversion.
 	 // TODO!
 	document_fetchc (doc);
-	if ( (doc->c < 65 || doc->c > 90) && (doc->c < 97 || doc->c > 122) && doc->c < 127) {
+	if ( (doc->c < 65 || doc->c > 90) && (doc->c < 97 || doc->c > 122) || doc->c > 127) {
+         //these three lines aren't really necessary, but serve to print out a nice little msg …
         charv_append (name, doc->c);
         charv_finalize (name);
-        doc_putc (doc, doc->c);
-        msg_log ("single-char macro", name->array);
+        msg_log ("escape sequence", name->array);
         charv_free (name);
+        doc_putc (doc, doc->c);
+        document_fetchc (doc);
         return;
     } else charv_append (name, doc->c);
 	

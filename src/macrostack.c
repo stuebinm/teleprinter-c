@@ -111,5 +111,8 @@ struct macro* mstack_get_macro (struct mstack* mstack, char* name) {
 }
 
 void free_macro (struct macro* m) {
+    free (m->name);
+    if (m->data != 0) free (m->data);
+    printf ("freeing stuff!\n");
     free (m);
 }
