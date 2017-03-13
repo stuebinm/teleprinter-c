@@ -6,6 +6,7 @@
 #define PARSE_ERROR 3
 #define EOF_ERROR 4
 #define PREMATURE_ENV_ERROR 5
+#define NON_DOC_ERROR 6
 
 void error_exit (int code, char* msg);
 
@@ -17,5 +18,7 @@ void eof_error ();
 
 void msg_log (char* name, char* msg);
 void msg_logc (char* name, char c);
+
+void non_doc_error ();
 
 #endif

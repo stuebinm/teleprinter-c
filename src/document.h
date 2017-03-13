@@ -18,6 +18,8 @@ struct document {
 	struct mstack* mstack;
 	int c;
 	int wordc;
+	stream_putc* printc_base;
+	stream_printf* printf_base;
 };
 
 struct layer {
@@ -29,6 +31,7 @@ struct layer {
 	stream_fetchc* fetchc;
 	int c;
 	struct document* doc;
+	char* paragraph;
 };
 
 
@@ -45,5 +48,7 @@ int document_fetchc (struct document* doc);
 void doc_putc (struct document* doc, char c);
 void doc_print (struct document* doc, char* str);
 
+void void_putc (struct layer* l, char c);
+void void_print (struct layer* l, char* msg);
 
 #endif

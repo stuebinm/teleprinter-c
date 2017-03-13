@@ -23,11 +23,12 @@ struct document* new_document_from_file (FILE* input) {
 	struct document* ret = malloc (sizeof (struct document));
 	ret->top = malloc (sizeof (struct layer));
 	
-	ret->top->printc = &printc;
-	ret->top->printf = &printout;
+	ret->top->printc = &void_putc;
+	ret->top->printf = &void_print;
 	ret->top->fetchc = &fetch_from_file;
 	ret->top->indata = input;
 	ret->top->next = 0;
+	ret->top->paragraph = "";
 	ret->wordc = 0;
 	
 	ret->mstack = new_macrostack ();
@@ -100,6 +101,7 @@ void document_push_layer_str (struct document* doc, struct charv* out) {
 	new->doc = doc;
 	new->indata = 0;
 	new->outdata = 0;
+	new->paragraph = "\n</p>\n<p align=\"justify\">\n";
 	
 	new->outdata = out;
 	new->next = doc->top;
@@ -123,6 +125,7 @@ void document_push_layer_command (struct document* doc, char* in, struct charv* 
 	indata->i = 1;
 	new->indata = indata;
 	new->doc = doc;
+	new->paragraph = "\n</p>\n<p align=\"justify\">\n";
 	
 	new->outdata = out;
 	new->next = doc->top;
@@ -137,13 +140,14 @@ void document_push_layer_env (struct document* doc, char* name) {
     
     struct layer* new = malloc (sizeof (struct layer));
     
-	new->printc = doc->top->printc;
-	new->printf = doc->top->printf;
+	new->printc = doc->printc_base;//doc->top->printc;
+	new->printf = doc->printf_base;//doc->top->printf;
 	
 	new->fetchc = &fetch_from_base;
 	new->indata = 0;
 	new->outdata = 0;
 	new->doc = doc;
+	new->paragraph = "\n</p>\n<p align=\"justify\">\n";
 
 	new->next = doc->top;
 	doc->top = new;
@@ -180,3 +184,20 @@ void doc_putc (struct document* doc, char c) {
 void doc_print (struct document* doc, char* str) {
     doc->top->printf (doc->top, str);
 }
+
+void void_putc (struct layer* l, char c) {
+    switch (c) {
+        case '\n':
+        case '\t':
+        case ' ':
+            return;
+        default:
+            non_doc_error ();
+    }
+}
+
+void void_print (struct layer* l, char* msg) {
+    if (msg[0] != 0)
+    non_doc_error ();
+}
+

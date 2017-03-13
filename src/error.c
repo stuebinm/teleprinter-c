@@ -9,6 +9,9 @@
 int column = 0;
 
 void error_exit (int code, char* msg) {
+	if (column != 0) {
+        printf ("\n");
+    }
 	printf (" >>> ERROR: %s\n", msg);
 	exit (code);
 }
@@ -67,4 +70,8 @@ void msg_logc (char* name, char c) {
         column = l;
     }
     fprintf (stderr, "[%s: %c]", name, c);
+}
+
+inline void non_doc_error () {
+    error_exit (NON_DOC_ERROR, "no text allowed outside of doc.");
 }

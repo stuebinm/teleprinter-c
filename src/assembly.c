@@ -47,6 +47,8 @@ char* custom_method (struct document* doc, struct macro* macro, struct charv** a
 char* begin_env_method (struct document* doc, struct macro* macro, struct charv** argv) {
     document_push_layer_env (doc, "document");
     msg_log ("entering env", "document");
+    doc_print (doc, "<html><head><meta charset=\"utf8\"></head><body>");
+    
 	return calloc (1, sizeof (char));
 }
 
@@ -55,7 +57,9 @@ char* end_env_method (struct document* doc, struct macro* macro, struct charv** 
     if (doc->top->next == 0) {
         leaving_env_error ("document");
     }
+    doc_print (doc, "</body></html>");
     document_pop_layer (doc);
+    
     msg_log ("leaving env", "document");
     return calloc (1, sizeof (char));
 }

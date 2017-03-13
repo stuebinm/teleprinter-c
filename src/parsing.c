@@ -76,7 +76,7 @@ void parse_main_loop (struct document* doc) {
 			case '\n':
 			    document_fetchc (doc);
 			    if (doc->c != '\n') goto main_loop_start;
-			    doc_print (doc, "\n</p>\n<p align=\"justify\">\n");
+			    doc_print (doc, doc->top->paragraph);//"\n</p>\n<p align=\"justify\">\n");
 		     // default to copy things (html will do the rest)
 			default:
 				doc_putc (doc, (char) doc->c);
