@@ -50,7 +50,6 @@ int main (int argc, char** argv) {
 			output = fopen (outname->array, "w");
 			charv_free (outname);
         }
-        
 		if (output == 0) error_exit (1, "File Error");
 		doc->top->printc = &put_outputc;
 		doc->top->printf = &put_printout;
