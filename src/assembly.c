@@ -8,7 +8,7 @@
 
 char* newcommand_method (struct document* doc, struct macro* macro, struct charv** argv) {
     msg_log ("new macro", argv[0]->array);
-    mstack_set_macro (doc->mstack, charv_isolate (argv[0]), 1, &custom_method, charv_isolate(argv[1]));
+    mstack_set_macro (doc->mstack, charv_isolate (argv[0]), 1, &custom_method, charv_isolate(argv[1]), false);
     free (argv);
     return calloc (1, sizeof (char));
 }

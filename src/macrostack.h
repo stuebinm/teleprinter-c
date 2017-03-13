@@ -1,6 +1,8 @@
 #ifndef MACROSTACK_H
 #define MACROSTACK_H
 
+#include <stdbool.h>
+
 #include "charv.h"
 #include "document.h"
 
@@ -18,6 +20,7 @@ struct macro {
     char* data;
     struct macro* next;
     int story;
+    bool raw;
 };
 
 struct mstack {
@@ -32,7 +35,7 @@ void macrostack_free (struct mstack* mstack);
 void mstack_push_level (struct mstack* stack);
 void mstack_pop_level (struct mstack* stack);
 
-void mstack_set_macro (struct mstack*, char* name, int argc, macro_method* method, char* data);
+void mstack_set_macro (struct mstack*, char* name, int argc, macro_method* method, char* data, bool raw);
 
 struct macro* mstack_get_macro (struct mstack*, char* name);
 

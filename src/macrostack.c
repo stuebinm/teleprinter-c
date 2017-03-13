@@ -16,17 +16,25 @@ struct mstack* new_macrostack () {
     ret->size = 20;
     ret->htable = calloc (ret->size, sizeof (struct macro*));
     
-    mstack_set_macro (ret, "emph", 1, &custom_method, "<em>#1</em>");
-    mstack_set_macro (ret, "thought", 1, &custom_method, "\\emph{#1}");
-    mstack_set_macro (ret, "chapter*", 1, &custom_method, "<h2>#1</h2>");
-    mstack_set_macro (ret, "part", 1, &custom_method, "<h1>#1</h1>");
-    mstack_set_macro (ret, "chbegin", 2, &custom_method, "<h4>#1</h4><b>#2</b>");
-    mstack_set_macro (ret, "enquote", 1, &custom_method, "“#1”");
+    // these are the baseline commands used to output all html tags.
+    mstack_set_macro (ret, "otag", 1, &custom_method, "<#1>", true);
+    mstack_set_macro (ret, "ctag", 1, &custom_method, "</#1>", true);
+    mstack_set_macro (ret, "tag", 2, &custom_method, "\\otag{#1}#2\\ctag{#1}", false);
     
-    mstack_set_macro (ret, "newcommand", 2, &newcommand_method, 0);
+     // a few basic commands for testing
+    mstack_set_macro (ret, "emph", 1, &custom_method, "\\tag{em}{#1}", false);
+    mstack_set_macro (ret, "thought", 1, &custom_method, "\\emph{#1}", false);
+    mstack_set_macro (ret, "chapter*", 1, &custom_method, "\\tag{h2}{#1}", false);
+    mstack_set_macro (ret, "part", 1, &custom_method, "\\tag{h1}{#1}", false);
+    mstack_set_macro (ret, "chbegin", 2, &custom_method, "\\tag{h4}{#1}\\tag{b}{#2}", false);
+    mstack_set_macro (ret, "enquote", 1, &custom_method, "“#1”", false);
     
-    mstack_set_macro (ret, "begin", 0, &begin_env_method, 0);
-    mstack_set_macro (ret, "end", 0, &end_env_method, 0);
+     // the all-important \newcommand
+    mstack_set_macro (ret, "newcommand", 2, &newcommand_method, 0, false);
+    
+     // env testing
+    mstack_set_macro (ret, "begin", 0, &begin_env_method, 0, false);
+    mstack_set_macro (ret, "end", 0, &end_env_method, 0, false);
     
     
     return ret;
@@ -83,7 +91,7 @@ void mstack_pop_level (struct mstack* mstack) {
 }
 
 
-void mstack_set_macro (struct mstack* mstack, char* name, int argc, macro_method* method, char* data) {
+void mstack_set_macro (struct mstack* mstack, char* name, int argc, macro_method* method, char* data, bool raw) {
     int key = hash (name, mstack->size);
     
     struct macro* new = malloc (sizeof (struct macro));
@@ -93,6 +101,7 @@ void mstack_set_macro (struct mstack* mstack, char* name, int argc, macro_method
     new->story = mstack->top;
     new->next = mstack->htable [key];
     new->data = data;
+    new->raw = raw;
     mstack->htable[key] = new;
     
 }

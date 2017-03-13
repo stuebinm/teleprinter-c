@@ -20,25 +20,29 @@ void parse_main_loop (struct document* doc) {
 			} else doc_putc (doc, ' ');
 		}
 		switch (doc->c) {
+		     // code for entering scopes (floating ones, obviously; others are handled by macros)
 			case '{': ;
 				struct charv* word = parse_statement (doc);
 				msg_log ("floating word", word->array);
 				doc_print (doc, word->array);
 				charv_free (word);
 				break;
+			 // code for leaving scopes; exit with error if toplevel.
 			case '}':
 			    if (d == 0) parse_error();
 			    goto main_end;
+			 // code for EOF (exit with error unless toplevel)
 		    case EOF:
 		        if (d != 1)
 		            eof_error ();
 		        goto main_end;
+	         // code for macros.
 			case '\\':
 				parse_command (doc);
 				goto main_loop_start;
 				break;
+		     // code for long dashes.
 			case '-':
-			     // code for long dashes.
 			    if (document_fetchc (doc) == '-') {
 			        if (document_fetchc (doc) == '-') {
 			            msg_log ("character identity", "em dash");
@@ -52,6 +56,7 @@ void parse_main_loop (struct document* doc) {
 			    }
 			    else doc_putc (doc, '-');
 			    goto main_loop_start;
+		     // code for xml character entities.
 		    case '\'':
 		        doc_print (doc, "’");
 		        break;
@@ -67,10 +72,12 @@ void parse_main_loop (struct document* doc) {
 	        case '"':
 	            doc_print (doc, "&quot;");
 	            break;
+             // code for paragraphs
 			case '\n':
 			    document_fetchc (doc);
 			    if (doc->c != '\n') goto main_loop_start;
 			    doc_print (doc, "\n</p>\n<p align=\"justify\">\n");
+		     // default to copy things (html will do the rest)
 			default:
 				doc_putc (doc, (char) doc->c);
 				break;
@@ -239,19 +246,23 @@ void parse_command (struct document* doc) {
 				struct charv** argv = get_statements (doc, macro->argc);
 				 // generate markup.
 				char* output = macro->invoke (doc, macro, argv);
-				 // parse said markup in its own scope.
-				struct charv* ret = new_charv (10);
-                document_push_layer_command (doc, output, ret);
-                parse_main_loop (doc);
-                document_pop_layer (doc);
-                charv_finalize (ret);
-                 // print returned html code.
-				msg_log ("macro", name->array);
-			     // be colloquial
-                doc_print (doc, ret->array);
-                 // free memory
+				if (macro->raw) {
+				    doc_print (doc, output);
+				}
+				else {
+			         // parse said markup in its own scope.
+			        struct charv* ret = new_charv (10);
+                    document_push_layer_command (doc, output, ret);
+                    parse_main_loop (doc);
+                    document_pop_layer (doc);
+                    charv_finalize (ret);
+		             // be colloquial
+                    doc_print (doc, ret->array);
+                     // free memory
+				    charv_free (ret);
+                 }
+		        msg_log ("macro", name->array);
 				free (output);
-				charv_free (ret);
 				charv_free (name);
 				return;
 			case EOF:
