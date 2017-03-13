@@ -23,7 +23,6 @@ struct mstack* new_macrostack () {
     
      // a few basic commands for testing
     mstack_set_macro (ret, "emph", 1, &custom_method, "\\tag{em}{#1}", false);
-    mstack_set_macro (ret, "thought", 1, &custom_method, "\\emph{#1}", false);
     mstack_set_macro (ret, "chapter*", 1, &custom_method, "\\tag{h2}{#1}", false);
     mstack_set_macro (ret, "part", 1, &custom_method, "\\tag{h1}{#1}", false);
     mstack_set_macro (ret, "chbegin", 2, &custom_method, "\\tag{h4}{#1}\\tag{b}{#2}", false);
