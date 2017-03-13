@@ -62,7 +62,8 @@ int main (int argc, char** argv) {
 		
 	}
 	else {
-		printf ("Could not open file %s.\n", argv[1]);
+		//printf ("Could not open file %s.\n", argv[1]);
+		error_exit (UNKNOWN_FILE_ERROR, "Could not open file");
 	}
 	
 	return 0;
