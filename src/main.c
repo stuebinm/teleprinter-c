@@ -36,19 +36,31 @@ int main (int argc, char** argv) {
 
 		if (argc == 3) {
 			output = fopen (argv[2], "w");
-			if (output == 0) error_exit (1, "File Error");
-			doc->top->printc = &put_outputc;
-			doc->top->printf = &put_printout;
 			
+        } else { // simple code to construct a fallback output name in case none was given.
+            struct charv* outname = new_charv (10);
+            char c;
+            int i = 0;
+            while ( (c = argv[1][i]) != '.') {
+                charv_append (outname, c);
+                i++;
+            }
+            charv_append_array (outname, ".html");
+            charv_finalize (outname);
+			output = fopen (outname->array, "w");
+			charv_free (outname);
         }
+        
+		if (output == 0) error_exit (1, "File Error");
+		doc->top->printc = &put_outputc;
+		doc->top->printf = &put_printout;
 		
 		parse_main_loop (doc);
 		printf ("\n");
 		free_document (doc);
 		fclose (input);
-		if (argc == 3) {
-			fclose (output);
-		}
+		fclose (output);
+		
 	}
 	else {
 		printf ("Could not open file %s.\n", argv[1]);
