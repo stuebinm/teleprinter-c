@@ -2,15 +2,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include "macrostack.h"
 #include "error.h"
 
-int d = 0;
-
 void parse_main_loop (struct document* doc) {
 	skip_whitespace (doc);
-	d++;
+	doc->layerstack++;
 	do{
 	    main_loop_start:
 		if (skip_whitespace (doc)) {
@@ -29,7 +28,7 @@ void parse_main_loop (struct document* doc) {
 				break;
 			 // code for leaving scopes; exit with error if toplevel.
 			case '}':
-			    if (d == 0) parse_error();
+			    if (doc->layerstack == 0) parse_error();
 			    goto main_end;
 			 // code for EOF (exit with error unless toplevel)
 		    case EOF:
@@ -85,7 +84,7 @@ void parse_main_loop (struct document* doc) {
 		doc->wordc++;
 	} while (document_fetchc (doc));
 	main_end:
-	d--;
+	doc->layerstack--;
 }
 
 /**
@@ -209,6 +208,7 @@ struct charv** get_statements (struct document* doc, int number) {
 	return ret;
 }
 
+
 /**
  * parse_command:
  * assumes there is a command next, fetches and executes it.
@@ -262,7 +262,7 @@ void parse_command (struct document* doc) {
 			        document_push_scope (doc);
                     document_push_layer_command (doc, output, ret);
                     parse_main_loop (doc);
-                    document_pop_layer (doc);
+                    document_pop_layer_command (doc);
                     document_pop_scope (doc);
                     
                     charv_finalize (ret);
@@ -270,8 +270,10 @@ void parse_command (struct document* doc) {
                     doc_print (doc, ret->array);
                      // free memory
 				    charv_free (ret);
-                 }
-		        msg_log ("macro", name->array);
+                }
+                // prints a debug-message if the layer stack has fewer than two entries.
+		        if (doc->layerstack<2) msg_log ("macro", name->array);
+				
 				free (output);
 				charv_free (name);
 				return;

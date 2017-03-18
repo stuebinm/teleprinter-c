@@ -30,6 +30,7 @@ struct document* new_document_from_file (FILE* input) {
 	ret->top->next = 0;
 	ret->top->paragraph = "";
 	ret->wordc = 0;
+	ret->layerstack = 0;
 	
 	ret->mstack = new_macrostack ();
 	document_fetchc (ret);
@@ -93,9 +94,10 @@ int fetch_from_string (struct layer* l) {
 struct layer* document_push_layer (struct document* doc) {
     struct layer* new = malloc (sizeof (struct layer));
     new->next = doc->top;
-	doc->top = new;
-	new->c = doc->c;
 	new->doc = doc;
+	new->c = doc->c;
+	doc->top = new;
+	return new;
 }
 
 void document_push_layer_str (struct document* doc, struct charv* out) {
@@ -173,6 +175,12 @@ void document_pop_layer (struct document* doc) {
     }
     free (old);
 }
+
+void document_pop_layer_command (struct document* doc) {
+    free (doc->top->indata);
+    document_pop_layer (doc);
+}
+
 
 void document_push_scope (struct document* doc) {
     mstack_push_level (doc->mstack);

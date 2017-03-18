@@ -57,8 +57,7 @@ char* include_doc_method (struct document* doc, struct macro* macro, struct char
     
     fclose (sinput);
     
-    
-    //charv_array_free (argv, macro->argc);
+    charv_array_free (argv, macro->argc);
     return calloc (1, sizeof (char));
 }
 
@@ -68,7 +67,7 @@ char* begin_env_method (struct document* doc, struct macro* macro, struct charv*
     document_push_layer_env (doc, "document");
     msg_log ("entering env", "document");
     doc_print (doc, "<html><head><meta charset=\"utf8\"></head><body>");
-    
+
 	return calloc (1, sizeof (char));
 }
 

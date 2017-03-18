@@ -51,6 +51,7 @@ int main (int argc, char** argv) {
 			charv_free (outname);
         }
 		if (output == 0) error_exit (1, "File Error");
+		
 		doc->printc_base = &put_outputc;
 		doc->printf_base = &put_printout;
 		

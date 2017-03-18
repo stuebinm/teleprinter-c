@@ -50,6 +50,9 @@ void macrostack_free (struct mstack* mstack) {
             
             while (iter != 0) {
                 old = iter->next;
+                /*  at this point all but the built-in assembly commands are already freed,
+                    so there's no need call free_macro(),
+                    wich assumes that the macro's name was allocated on the stack.*/
                 free (iter);
                 iter = old;
             }

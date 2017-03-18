@@ -18,6 +18,7 @@ struct document {
 	struct mstack* mstack;
 	int c;
 	int wordc;
+	int layerstack;
 	stream_putc* printc_base;
 	stream_printf* printf_base;
 };
@@ -38,11 +39,14 @@ struct layer {
 struct document* new_document_from_file (FILE* input);
 void free_document (struct document* doc);
 
+struct layer* document_push_layer (struct document* doc);
 void document_push_layer_str (struct document* doc, struct charv* out);
 void document_push_layer_command (struct document* doc, char* in, struct charv* out);
 void document_push_layer_env (struct document* doc, char* name);
 void document_push_layer_doc (struct document* doc, FILE* file);
+
 void document_pop_layer (struct document* doc);
+void document_pop_layer_command (struct document* doc);
 
 int document_fetchc (struct document* doc);
 
