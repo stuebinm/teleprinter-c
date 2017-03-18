@@ -90,72 +90,77 @@ int fetch_from_string (struct layer* l) {
     return c;
 }
 
-void document_push_layer_str (struct document* doc, struct charv* out) {
-    
+struct layer* document_push_layer (struct document* doc) {
     struct layer* new = malloc (sizeof (struct layer));
-    
+    new->next = doc->top;
+	doc->top = new;
+	new->c = doc->c;
+	new->doc = doc;
+}
+
+void document_push_layer_str (struct document* doc, struct charv* out) {
+    struct layer* new = document_push_layer (doc);
+	
 	new->printc = &put_in_charv;
 	new->printf = &print_in_charv;
-	
 	new->fetchc = &fetch_from_base;
-	new->doc = doc;
 	new->indata = 0;
 	new->outdata = 0;
 	new->paragraph = "\n</p>\n<p align=\"justify\">\n";
-	
 	new->outdata = out;
-	new->next = doc->top;
-	doc->top = new;
-	new->c = doc->c;
-	
-	mstack_push_level (doc->mstack);
-	
 }
 
 void document_push_layer_command (struct document* doc, char* in, struct charv* out) {
     
-    struct layer* new = malloc (sizeof (struct layer));
-    
-	new->printc = &put_in_charv;
-	new->printf = &print_in_charv;
-	
-	new->fetchc = &fetch_from_string;
+    struct layer* new = document_push_layer (doc);
+
+    // input
 	struct strin_data* indata = malloc (sizeof (struct strin_data));
 	indata->string = in;
-	indata->i = 1;
+	indata->i = 0;
 	new->indata = indata;
-	new->doc = doc;
-	new->paragraph = "\n</p>\n<p align=\"justify\">\n";
+	new->fetchc = &fetch_from_string;
+	// fetch first character of input
+	document_fetchc (doc);
 	
+	// output
 	new->outdata = out;
-	new->next = doc->top;
-	doc->top = new;
-	new->c = in[0];
-	doc->c = new->c;
-	
-	mstack_push_level (doc->mstack);
+	new->printc = &put_in_charv;
+	new->printf = &print_in_charv;
+
+    // TODO: this is a hack
+	new->paragraph = "\n</p>\n<p align=\"justify\">\n";
 }
 
 void document_push_layer_env (struct document* doc, char* name) {
     
-    struct layer* new = malloc (sizeof (struct layer));
+    struct layer* new = document_push_layer (doc);
     
-	new->printc = doc->printc_base;//doc->top->printc;
-	new->printf = doc->printf_base;//doc->top->printf;
-	
+    // take the base output functions (before this env, there's only a dummy function)
+	new->printc = doc->printc_base;
+	new->printf = doc->printf_base;
+	// input remains unchanged
 	new->fetchc = &fetch_from_base;
+	
 	new->indata = 0;
 	new->outdata = 0;
-	new->doc = doc;
 	new->paragraph = "\n</p>\n<p align=\"justify\">\n";
+}
 
-	new->next = doc->top;
-	doc->top = new;
-	new->c = doc->c;
+void document_push_layer_doc (struct document* doc, FILE* file) {
+
+    struct layer* new = document_push_layer (doc);
+    
+    // output doesn't change
+	new->outdata = 0;
+	new->printc = new->next->printc;
+	new->printf = new->next->printf;
 	
-	mstack_push_level (doc->mstack);
-	
-	
+	// fetch from given file
+	new->indata = file;
+	new->fetchc = &fetch_from_file;
+
+	new->paragraph = new->next->paragraph;
 }
 
 
@@ -166,10 +171,16 @@ void document_pop_layer (struct document* doc) {
     if (doc->top == 0) {
         parse_error ();
     }
-    if (old->indata) free (old->indata);
     free (old);
+}
+
+void document_push_scope (struct document* doc) {
+    mstack_push_level (doc->mstack);
+}
+void document_pop_scope (struct document* doc) {
     mstack_pop_level (doc->mstack);
 }
+
 
 int document_fetchc (struct document* doc) {
     doc->top->c = doc->top->fetchc (doc->top);

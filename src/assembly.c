@@ -44,6 +44,26 @@ char* custom_method (struct document* doc, struct macro* macro, struct charv** a
     return charv_isolate (ret);
 }
 
+
+char* include_doc_method (struct document* doc, struct macro* macro, struct charv** argv) {
+    
+    
+    FILE* sinput = fopen (argv[0]->array, "r");
+    if (sinput == 0) printf ("file error!\n");
+    
+    document_push_layer_doc (doc, sinput);
+    parse_main_loop (doc);
+    document_pop_layer (doc);
+    
+    fclose (sinput);
+    
+    
+    //charv_array_free (argv, macro->argc);
+    return calloc (1, sizeof (char));
+}
+
+
+
 char* begin_env_method (struct document* doc, struct macro* macro, struct charv** argv) {
     document_push_layer_env (doc, "document");
     msg_log ("entering env", "document");

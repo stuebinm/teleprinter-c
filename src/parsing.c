@@ -33,9 +33,9 @@ void parse_main_loop (struct document* doc) {
 			    goto main_end;
 			 // code for EOF (exit with error unless toplevel)
 		    case EOF:
-		        if (d != 1)
+		        /*if (d != 1)
 		            eof_error ();
-		        goto main_end;
+		        */goto main_end;
 	         // code for macros.
 			case '\\':
 				parse_command (doc);
@@ -98,9 +98,15 @@ void parse_main_loop (struct document* doc) {
 struct charv* parse_statement (struct document* doc) {
 	struct charv* ret = new_charv (10);
 	document_fetchc (doc);
+	
+	document_push_scope (doc);
 	document_push_layer_str (doc, ret);
+	
 	parse_main_loop (doc);
+	
 	document_pop_layer (doc);
+	document_pop_scope (doc);
+	
 	charv_finalize (ret);
 	return ret;
 }
@@ -252,9 +258,13 @@ void parse_command (struct document* doc) {
 				else {
 			         // parse said markup in its own scope.
 			        struct charv* ret = new_charv (10);
+			        
+			        document_push_scope (doc);
                     document_push_layer_command (doc, output, ret);
                     parse_main_loop (doc);
                     document_pop_layer (doc);
+                    document_pop_scope (doc);
+                    
                     charv_finalize (ret);
 		             // be colloquial
                     doc_print (doc, ret->array);
