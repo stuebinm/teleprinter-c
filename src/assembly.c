@@ -7,14 +7,27 @@
 #include "error.h"
 
 char* newcommand_method (struct document* doc, struct macro* macro, struct charv** argv) {
-    msg_log ("new macro", argv[0]->array);
-    mstack_set_macro (doc->mstack, charv_isolate (argv[0]), 1, 0, &custom_method, charv_isolate(argv[1]), false);
+    msg_log ("new macro", argv[2]->array);
+    int argc = 0;
+    int opc = 0;
+    if (argv[0]->array[0] != '\0') {
+        argc = argv[0]->array[0] - 48; // ascii decoding
+    }
+    if (argv[1]->array[0] != '\0') {
+        opc = argv[1]->array[0] - 48; // ascii decoding
+    }
+    if (opc > argc) {
+        newcommand_error ("number of optional arguments must be lower than total argument count.");
+    }
+    
+    
+    mstack_set_macro (doc->mstack, charv_isolate (argv[2]), argc, opc, &custom_method, charv_isolate(argv[3]), false);
     free (argv);
     return calloc (1, sizeof (char));
 }
 
 char* custom_method (struct document* doc, struct macro* macro, struct charv** argv) {
-    struct charv* ret = new_charv (argv[0]->length);
+    struct charv* ret = new_charv (strlen(macro->data));
     char c = macro->data[0];
     int i = 0;
     while ( (c = macro->data[i]) != '\0') {
@@ -23,15 +36,21 @@ char* custom_method (struct document* doc, struct macro* macro, struct charv** a
             i += 1;
             if (macro->data[i] > 48 && macro->data[i] < 58) {
                 int n = macro->data [i] - 49; // - 48 (for ascii decoding) -1 (for array count)
-                if (n>macro->argc) command_error ("this is an error: ", macro->name, "!");
+                if (n>=macro->argc) //command_error ("this is an error: ", macro->name, "!");
+                {
+                    charv_append (ret, '#');
+                    charv_append (ret, macro->data[i]);
+                    printf ("%s", ret->array);
+                    i += 1;
+                    continue;
+                }
                 charv_append_array (ret, argv[n]->array);
             }
             i += 1;
             continue;
         }
-        big_loop:
         charv_append (ret, c);
-        i++;
+        i += 1;
     }
     charv_finalize (ret);
 	charv_array_free (argv, macro->argc);

@@ -26,6 +26,14 @@ void command_error (char* msgs, char* command, char* msge) {
 	exit (UNKNOWN_COMMAND_ERROR);
 }
 
+void newcommand_error (char* msg) {
+    if (column != 0) {
+        printf ("\n");
+    }
+    printf (" >>> ERROR: %s\n\t exiting …\n", msg);
+    exit (NEWCOMMAND_ERROR);
+}
+
 void leaving_env_error (char* name) {
 	if (column != 0) {
         printf ("\n");

@@ -7,10 +7,12 @@
 #define EOF_ERROR 4
 #define PREMATURE_ENV_ERROR 5
 #define NON_DOC_ERROR 6
+#define NEWCOMMAND_ERROR 7
 
 void error_exit (int code, char* msg);
 
 void command_error (char* msgs, char* command, char* msge);
+void newcommand_error (char* msg);
 
 void parse_error ();
 void leaving_env_error (char* name);

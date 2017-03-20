@@ -32,7 +32,7 @@ struct mstack* new_macrostack () {
     mstack_set_macro (ret, "include", 1, 0, &include_doc_method, 0, true);
     
      // the all-important \newcommand
-    mstack_set_macro (ret, "newcommand", 2, 0, &newcommand_method, 0, false);
+    mstack_set_macro (ret, "newcommand", 4, 2, &newcommand_method, 0, false);
     
      // env testing
     mstack_set_macro (ret, "begin", 0, 0, &begin_env_method, 0, false);

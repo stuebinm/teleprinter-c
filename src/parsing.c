@@ -202,6 +202,15 @@ struct charv** get_statements (struct document* doc, int number, int optional, c
 				            i++;
 				        }
 				    }
+				    if (optional == number) {
+				        while (i<optional) {
+				            ret[i] = new_charv (10);
+				            charv_finalize (ret[i]);
+				            i++;
+				        }
+				        goto cont;
+				    }
+				    
 				    // fetch the i-th statement.
 					ret[i] = new_charv (10);
 					d = 1;
