@@ -8,7 +8,7 @@
 
 char* newcommand_method (struct document* doc, struct macro* macro, struct charv** argv) {
     msg_log ("new macro", argv[0]->array);
-    mstack_set_macro (doc->mstack, charv_isolate (argv[0]), 1, &custom_method, charv_isolate(argv[1]), false);
+    mstack_set_macro (doc->mstack, charv_isolate (argv[0]), 1, 0, &custom_method, charv_isolate(argv[1]), false);
     free (argv);
     return calloc (1, sizeof (char));
 }
@@ -18,21 +18,15 @@ char* custom_method (struct document* doc, struct macro* macro, struct charv** a
     char c = macro->data[0];
     int i = 0;
     while ( (c = macro->data[i]) != '\0') {
-        //printf ("%c", c);
+
         if (c == '#') {
-            
-            switch (macro->data[i+1]) {
-                case '1':
-                    charv_append_array (ret, argv[0]->array);
-                    break;
-                case '2':
-                    charv_append_array (ret, argv[1]->array);
-                    break;
-                default:
-                    charv_append (ret, argv[0]->array[i]);
-                    goto big_loop;
+            i += 1;
+            if (macro->data[i] > 48 && macro->data[i] < 58) {
+                int n = macro->data [i] - 49; // - 48 (for ascii decoding) -1 (for array count)
+                if (n>macro->argc) command_error ("this is an error: ", macro->name, "!");
+                charv_append_array (ret, argv[n]->array);
             }
-            i += 2;
+            i += 1;
             continue;
         }
         big_loop:

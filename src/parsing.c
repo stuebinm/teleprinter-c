@@ -157,17 +157,54 @@ int skip_whitespace (struct document* doc) {
  * Returns: a charv-array containing @number elements.
  *
 */
-struct charv** get_statements (struct document* doc, int number) {
+struct charv** get_statements (struct document* doc, int number, int optional, char* name) {
     if (number == 0) return 0;
 	struct charv** ret = malloc (number * sizeof (struct charv));
 	for (int i = 0; i<number; i++) {
 		start_get_loop:
 		do {
+		    int d;
 			switch (doc->c) {
+			    case '[':
+			        if (i>=optional) {
+			            command_error ("Too many optional arguments for macro ", name, "!");
+			        }
+			        // fetch the i-th statement.
+					ret[i] = new_charv (10);
+					d = 1;
+					while (document_fetchc (doc)) {
+					    switch (doc->c) {
+					        case '[':
+					            d += 1;
+					            charv_append (ret[i], doc->c);
+					            break;
+				            case ']':
+				                d -= 1;
+				                if (d == 0) {
+				                    charv_finalize (ret[i]);
+				                    document_fetchc (doc);
+				                    goto cont;
+				                }
+				                charv_append (ret[i], doc->c);
+				                break;
+			                case EOF:
+			                    eof_error ();
+			                default:
+			                    charv_append (ret[i], doc->c);
+					    }
+					}
+					goto cont;
 				case '{':
+				    if (i<optional) {
+				        while (i<optional) {
+				            ret[i] = new_charv (10);
+				            charv_finalize (ret[i]);
+				            i++;
+				        }
+				    }
 				    // fetch the i-th statement.
 					ret[i] = new_charv (10);
-					int d = 1;
+					d = 1;
 					while (document_fetchc (doc)) {
 					    switch (doc->c) {
 					        case '{':
@@ -192,14 +229,9 @@ struct charv** get_statements (struct document* doc, int number) {
 					goto cont;
 				default:
 				    if (!skip_whitespace (doc)) {
-				        printf ("nothing skipped!\n");
-				        struct charv* arg = new_charv (1);
-				        msg_logc ("single char argument", doc->c);
-				        charv_append (arg, doc->c);
-				        charv_finalize (arg);
-				        ret[i] = arg;
-				        goto cont;
-				    } else goto start_get_loop;
+				        command_error ("too few arguments for macro ", name, "!");
+				    }
+				    goto start_get_loop;
 			}
 		}
 		while (document_fetchc (doc));
@@ -237,6 +269,7 @@ void parse_command (struct document* doc) {
 	    
 		switch (doc->c) {
 			case '{':
+			case '[':
 			case ' ':
 			case '\t':
 			case '\n':
@@ -245,11 +278,11 @@ void parse_command (struct document* doc) {
 				
 				 // safeguard; in case the user gives a non-existent one the program will exit here.
 				if (macro == 0) {
-					unknown_command_exit (name->array);
+					command_error ("Unknown macro ", name->array, "!");
 				}
 				
 				 // fetch statements (will return 0 in case none are requested)
-				struct charv** argv = get_statements (doc, macro->argc);
+				struct charv** argv = get_statements (doc, macro->argc, macro->opc, macro->name);
 				 // generate markup.
 				char* output = macro->invoke (doc, macro, argv);
 				if (macro->raw) {

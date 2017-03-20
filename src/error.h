@@ -10,7 +10,7 @@
 
 void error_exit (int code, char* msg);
 
-void unknown_command_exit (char* command);
+void command_error (char* msgs, char* command, char* msge);
 
 void parse_error ();
 void leaving_env_error (char* name);

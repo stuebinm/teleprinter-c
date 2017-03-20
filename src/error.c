@@ -16,11 +16,13 @@ void error_exit (int code, char* msg) {
 	exit (code);
 }
 
-void unknown_command_exit (char* command) {
+void command_error (char* msgs, char* command, char* msge) {
 	if (column != 0) {
         printf ("\n");
     }
-	printf (" >>> ERROR: Unknown command \"\\%s\"!\n\texiting …\n", command);
+	printf (" >>> ERROR: %s", msgs);
+	printf ("\"\\%s\"", command);
+	printf ("%s\n\texiting …\n", msge);
 	exit (UNKNOWN_COMMAND_ERROR);
 }
 
