@@ -10,76 +10,86 @@ int column = 0;
 
 void error_exit (int code, char* msg) {
 	if (column != 0) {
-        printf ("\n");
+        fprintf (ERRFILE, "\n");
     }
-	printf (" >>> ERROR: %s\n", msg);
+	fprintf (ERRFILE, " >>> ERROR: %s\n", msg);
 	exit (code);
 }
 
 void command_error (char* msgs, char* command, char* msge) {
 	if (column != 0) {
-        printf ("\n");
+        fprintf (ERRFILE, "\n");
     }
-	printf (" >>> ERROR: %s", msgs);
-	printf ("\"\\%s\"", command);
-	printf ("%s\n\texiting …\n", msge);
+	fprintf (ERRFILE, " >>> ERROR: %s", msgs);
+	fprintf (ERRFILE, "\"\\%s\"", command);
+	fprintf (ERRFILE, "%s\n\texiting …\n", msge);
 	exit (UNKNOWN_COMMAND_ERROR);
 }
 
 void newcommand_error (char* msg) {
     if (column != 0) {
-        printf ("\n");
+        fprintf (ERRFILE, "\n");
     }
-    printf (" >>> ERROR: %s\n\t exiting …\n", msg);
+    fprintf (ERRFILE, " >>> ERROR: %s\n\t exiting …\n", msg);
     exit (NEWCOMMAND_ERROR);
 }
 
 void leaving_env_error (char* name) {
 	if (column != 0) {
-        printf ("\n");
+        fprintf (ERRFILE, "\n");
     }
-	printf (" >>> ERROR: Premature end of environment \"%s\"!\n\texiting …\n", name);
+	fprintf (ERRFILE, " >>> ERROR: Premature end of environment \"%s\"!\n\texiting …\n", name);
 	exit (PREMATURE_ENV_ERROR);
 }
 
 void eof_error () {
 	if (column != 0) {
-        printf ("\n");
+        fprintf (ERRFILE, "\n");
     }
-	printf (" >>> ERROR: Premature end of file.\n\texiting …\n");
+	fprintf (ERRFILE, " >>> ERROR: Premature end of file.\n\texiting …\n");
 	exit (EOF_ERROR);
 }
 
 void parse_error () {
 	if (column != 0) {
-        printf ("\n");
+        fprintf (ERRFILE, "\n");
     }
-    printf (" >>> ERROR: invalid syntax!\n\texiting …\n");
+    fprintf (ERRFILE, " >>> ERROR: invalid syntax!\n\texiting …\n");
 	exit (PARSE_ERROR);
 }
 
 void msg_log (char* name, char* msg) {
     int l = strlen (name) + strlen (msg) + 4;
-    struct winsize w;
-    ioctl (0, TIOCGWINSZ, &w);
     column += l;
-    if (column >= w.ws_col) {
-        fprintf (stderr, "\n");
+    if (column >= LOGWIDTH) {
+        fprintf (LOGFILE, "\n");
         column = l;
     }
-    fprintf (stderr, "[%s: %s]", name, msg);
+    fprintf (LOGFILE, "[%s: %s]", name, msg);
 }
 
 void msg_logc (char* name, char c) {
     int l = strlen (name) + 5;
-    struct winsize w;
-    ioctl (0, TIOCGWINSZ, &w);
     column += l;
-    if (column >= w.ws_col) {
-        fprintf (stderr, "\n");
+    if (column >= LOGWIDTH) {
+        fprintf (LOGFILE, "\n");
         column = l;
     }
-    fprintf (stderr, "[%s: %c]", name, c);
+    fprintf (LOGFILE, "[%s: %c]", name, c);
+}
+
+void macro_log (char* name) {
+    int l = strlen (name) + 10;
+    column += l;
+    if (column >= LOGWIDTH) {
+        fprintf (LOGFILE, "\n");
+        column = l;
+    }
+    fprintf (LOGFILE, "[macro: \\%s]", name);
+}
+
+void msg_simple (char* str) {
+    fprintf (LOGFILE, "%s", str);
 }
 
 inline void non_doc_error () {

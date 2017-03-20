@@ -19,9 +19,19 @@ char* newcommand_method (struct document* doc, struct macro* macro, struct charv
     if (opc > argc) {
         newcommand_error ("number of optional arguments must be lower than total argument count.");
     }
+    if (argv[2]->array[0] != '\\') newcommand_error ("macro names must start with \"\\\"!");
+    int i = 1;
+    char c;
+    while ( (c = argv[2]->array[i]) != '\0') {
+        if (c == ' ' || c == '\t' || c == '\n') 
+            newcommand_error ("Whitespace is not allowed in macro names.");
+        if (c == '{' || c == '[' || c == ']' || c == '[')
+            newcommand_error ("Control characters are not allowed in macro names.");
+        i += 1;
+    }
     
     
-    mstack_set_macro (doc->mstack, charv_isolate (argv[2]), argc, opc, &custom_method, charv_isolate(argv[3]), false);
+    mstack_set_macro (doc->mstack, charv_isolate (argv[2])+1, argc, opc, &custom_method, charv_isolate(argv[3]), false);
     free (argv);
     return calloc (1, sizeof (char));
 }

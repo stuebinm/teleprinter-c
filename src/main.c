@@ -1,71 +1,45 @@
 #include <stdio.h>
-#include <stdlib.h>
 
-#include "document.h"
-#include "parsing.h"
+#include "teleprinter.h"
 #include "charv.h"
 #include "error.h"
 
-
-FILE* input;
-FILE* output;
-
-
-void put_outputc (struct layer* l, char out) {
-	fputc (out, output);
-}
-
-void put_printout (struct layer* l, char* format) {
-	fprintf (output, "%s", format);
-}
-
-
 int main (int argc, char** argv) {
 
-	if (argc < 2 || argc > 3) {
-		printf ("this program takes one or two arguments!\n");
-		return 0;
+    ERRFILE = stderr;
+    LOGFILE = stdout;
+
+	if (argc > 4) {
+		error_exit (1, "This program takes at most three arguments!");
+	} else if (argc < 2) {
+	    error_exit (1, "This programm takes at least one argument!");
 	}
-
-	
-    input = fopen (argv[1], "r");
-
-	if (input != 0) {
-		
-		struct document* doc = new_document_from_file (input);
-
-		if (argc == 3) {
-			output = fopen (argv[2], "w");
-			
-        } else { // simple code to construct a fallback output name in case none was given.
-            struct charv* outname = new_charv (10);
-            char c;
-            int i = 0;
-            while ( (c = argv[1][i]) != '.') {
-                charv_append (outname, c);
-                i++;
-            }
-            charv_append_array (outname, ".html");
-            charv_finalize (outname);
-			output = fopen (outname->array, "w");
-			charv_free (outname);
+    
+    FILE* input = fopen (argv[1], "r");
+    FILE* output;
+    if (argc >= 3) {
+        output = fopen (argv[2], "w");
+    } else { // simple code to construct a fallback output name in case none was given.
+        struct charv* outname = new_charv (10);
+        char c;
+        int i = 0;
+        while ( (c = argv[1][i]) != '.') {
+            charv_append (outname, c);
+            i++;
         }
-		if (output == 0) error_exit (1, "File Error");
-		
-		doc->printc_base = &put_outputc;
-		doc->printf_base = &put_printout;
-		
-		parse_main_loop (doc);
-		printf ("\n");
-		free_document (doc);
-		fclose (input);
-		fclose (output);
-		
-	}
-	else {
-		//printf ("Could not open file %s.\n", argv[1]);
-		error_exit (UNKNOWN_FILE_ERROR, "Could not open file");
-	}
+        charv_append_array (outname, ".html");
+        charv_finalize (outname);
+		output = fopen (outname->array, "w");
+		charv_free (outname);
+    }
+    
+    FILE* logfile;
+    if (argc >= 4) logfile = fopen ("printer.log", "w");
+    else logfile = stderr;
+
+    print_document (input, output, logfile, stderr);
+    msg_log ("printed document", argv[1]);
+    msg_simple ("\n");
 	
 	return 0;
 }

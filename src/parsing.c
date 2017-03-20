@@ -314,7 +314,7 @@ void parse_command (struct document* doc) {
 				    charv_free (ret);
                 }
                 // prints a debug-message if the layer stack has fewer than two entries.
-		        if (doc->layerstack<2) msg_log ("macro", name->array);
+		        if (doc->layerstack<2) macro_log (name->array);
 				
 				free (output);
 				charv_free (name);
