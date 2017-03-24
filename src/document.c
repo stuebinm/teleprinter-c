@@ -27,6 +27,7 @@ struct document* new_document_from_file (FILE* input) {
 	ret->top->printf = &void_print;
 	ret->top->fetchc = &fetch_from_file;
 	ret->top->indata = input;
+	ret->top->outdata = 0;
 	ret->top->next = 0;
 	ret->top->paragraph = "";
 	ret->wordc = 0;
@@ -43,11 +44,13 @@ void free_document (struct document* doc) {
     
     if (doc->top->next != 0) eof_error ();
     
-    struct layer* next;
+    struct layer* next = iter;
     
     while (next != 0) {
         next = iter->next;
         free (iter);
+        printf ("freeing layer!\n");
+        iter = next;
     }
     macrostack_free (doc->mstack);
     free (doc);
