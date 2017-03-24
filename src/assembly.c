@@ -30,9 +30,13 @@ char* newcommand_method (struct document* doc, struct macro* macro, struct charv
         i += 1;
     }
     
-    
+     //                                                   ↓ this gives the actual name (minus the '\'). It does make freeing stuff somewhat ugly; see the comment in free_macro() for that
     mstack_set_macro (doc->mstack, charv_isolate (argv[2])+1, argc, opc, &custom_method, charv_isolate(argv[3]), false);
+    
+    charv_free (argv[0]);
+    charv_free (argv[1]);
     free (argv);
+    
     return calloc (1, sizeof (char));
 }
 

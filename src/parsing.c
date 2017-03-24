@@ -211,8 +211,8 @@ struct charv** get_statements (struct document* doc, int number, int optional, c
 				        goto cont;
 				    }
 				    
-				    // fetch the i-th statement.
 					ret[i] = new_charv (10);
+				    // fetch the i-th statement.
 					d = 1;
 					while (document_fetchc (doc)) {
 					    switch (doc->c) {

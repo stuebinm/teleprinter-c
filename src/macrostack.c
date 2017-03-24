@@ -15,6 +15,7 @@ struct mstack* new_macrostack () {
     struct mstack* ret = malloc (sizeof (struct mstack));
     
     ret->size = 20;
+    ret->top = 0;
     ret->htable = calloc (ret->size, sizeof (struct macro*));
     
     // these are the baseline commands used to output all html tags.
@@ -38,7 +39,7 @@ struct mstack* new_macrostack () {
     mstack_set_macro (ret, "begin", 0, 0, &begin_env_method, 0, false);
     mstack_set_macro (ret, "end", 0, 0, &end_env_method, 0, false);
     
-    
+    ret->top = 1;
     return ret;
 }
 
@@ -53,7 +54,7 @@ void macrostack_free (struct mstack* mstack) {
                 /*  at this point all but the built-in assembly commands are already freed,
                     so there's no need call free_macro(),
                     wich assumes that the macro's name was allocated on the stack.*/
-                free (iter);
+                free_macro (iter);
                 iter = old;
             }
         }
@@ -126,8 +127,14 @@ struct macro* mstack_get_macro (struct mstack* mstack, char* name) {
 }
 
 void free_macro (struct macro* m) {
-    msg_log ("macro now out of scope", m->name);
-    free (m->name);
-    if (m->data != 0) free (m->data);
+    if (m->story) {
+        msg_log ("macro now out of scope", m->name);
+        // based on the assumption that m at this point is sure to be one that's been allocated by
+        // the user (i.e. via \newcommand) --- the built-in ones have story = 0. In this case, the
+        // name pointer actuall points at the second character of the chararray (at the first is the
+        // mandatory '\'), so it's necessary to subract 1 from it.
+        free (m->name-1);
+        if (m->data != 0) free (m->data);
+    }
     free (m);
 }

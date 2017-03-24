@@ -49,7 +49,6 @@ void free_document (struct document* doc) {
     while (next != 0) {
         next = iter->next;
         free (iter);
-        printf ("freeing layer!\n");
         iter = next;
     }
     macrostack_free (doc->mstack);
