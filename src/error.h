@@ -11,6 +11,9 @@
 #define NON_DOC_ERROR 6
 #define NEWCOMMAND_ERROR 7
 
+ // maximum length for lines in files (in bytes!)
+#define DEFAULT_FILEWIDTH 100
+
 int LOGWIDTH;
 FILE* LOGFILE;
 FILE* ERRFILE;

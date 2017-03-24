@@ -32,12 +32,12 @@ void print_document (FILE* l_input, FILE* l_output, FILE* log, FILE* err) {
     input = l_input;
     output = l_output;
     
-    if (LOGFILE == stdout) {
+    if (LOGFILE == stderr) {
         struct winsize w;
         ioctl (0, TIOCGWINSZ, &w);
         LOGWIDTH = w.ws_col;
     } else {
-        LOGWIDTH = 100;
+        LOGWIDTH = DEFAULT_FILEWIDTH;
     }
 
 	if (input != 0) {
