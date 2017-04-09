@@ -139,8 +139,6 @@ char* ifthenelse_method (struct document* doc, struct macro* macro, struct charv
     document_pop_layer_command (doc);
     document_pop_scope (doc);
     charv_finalize (condition);
-    
-    
     while ( (c = condition->array[i]) != '\0') {
         if (!(c == ' ' || c == '\t' || c == '\n')) {
             b = true;
@@ -149,9 +147,14 @@ char* ifthenelse_method (struct document* doc, struct macro* macro, struct charv
         i++;
     }
     charv_free (condition);
+    charv_free (argv[0]);
     if (b) {
+        charv_free (argv[2]);
+        free (argv);
         return charv_isolate (argv[1]);
     }
+    charv_free (argv[1]);
+    free (argv);
     return charv_isolate (argv[2]);
     
 }
