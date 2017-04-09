@@ -44,11 +44,11 @@ void parse_main_loop (struct document* doc) {
 			case '-':
 			    if (document_fetchc (doc) == '-') {
 			        if (document_fetchc (doc) == '-') {
-			            msg_log ("character identity", "em dash");
+			            //msg_log ("character identity", "em dash");
 			            doc_print (doc, "&mdash;");
 			            break;
 		            } else {
-			            msg_log ("character identity", "en dash");
+			            //msg_log ("character identity", "en dash");
 			            doc_print (doc, "&ndash;");
 			            goto main_loop_start;
 			        }
@@ -275,8 +275,8 @@ void parse_command (struct document* doc) {
     } else charv_append (name, doc->c);
 	
 	while (document_fetchc (doc)) {
-	    
 		switch (doc->c) {
+		    case EOF:
 			case '{':
 			case '[':
 			case ' ':
@@ -313,14 +313,14 @@ void parse_command (struct document* doc) {
                      // free memory
 				    charv_free (ret);
                 }
-                // prints a debug-message if the layer stack has fewer than two entries.
-		        if (doc->layerstack<2) macro_log (name->array);
+                // prints a debug-message if the layer stack has fewer than two entries (preventing it from printing messages for all the \tag-macros).
+		        //if (doc->layerstack<2) macro_log (name->array);
 				
 				free (output);
 				charv_free (name);
 				return;
-			case EOF:
-				parse_error ();
+			//case EOF:
+			//	parse_error ();
 			default:
 				charv_append (name, (char) doc->c);
 				break;

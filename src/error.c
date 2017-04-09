@@ -12,7 +12,7 @@ void error_exit (int code, char* msg) {
 	if (column != 0) {
         fprintf (ERRFILE, "\n");
     }
-	fprintf (ERRFILE, " >>> ERROR: %s\n", msg);
+	fprintf (ERRFILE, " >>> ERROR: %s\n\texiting …\n", msg);
 	exit (code);
 }
 

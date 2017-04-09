@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 
 #include "error.h"
@@ -109,4 +110,53 @@ char* end_env_method (struct document* doc, struct macro* macro, struct charv** 
     msg_log ("leaving env", "document");
     return calloc (1, sizeof (char));
 }
+
+
+char* message_method (struct document* doc, struct macro* macro, struct charv** argv) {
+    msg_log ("message", argv[0]->array);
+    charv_array_free (argv, 1);
+    
+    return calloc (1, sizeof (char));
+}
+
+char* error_method (struct document* doc, struct macro* macro, struct charv** argv) {
+    error_exit (USEREXIT, argv[0]->array);
+    charv_array_free (argv, 1);
+    
+    return calloc (1, sizeof (char));
+}
+
+char* ifthenelse_method (struct document* doc, struct macro* macro, struct charv** argv) {
+    bool b = false;
+    char c;
+    int i = 0;
+    
+    struct charv* condition = new_charv (10);
+    document_push_scope (doc);
+    document_push_layer_command (doc, argv[0]->array, condition);
+    parse_main_loop (doc);
+    msg_log ("still", "here");
+    document_pop_layer_command (doc);
+    document_pop_scope (doc);
+    charv_finalize (condition);
+    
+    
+    while ( (c = condition->array[i]) != '\0') {
+        if (!(c == ' ' || c == '\t' || c == '\n')) {
+            b = true;
+            break;
+        }
+        i++;
+    }
+    charv_free (condition);
+    if (b) {
+        return charv_isolate (argv[1]);
+    }
+    return charv_isolate (argv[2]);
+    
+}
+
+
+
+
 

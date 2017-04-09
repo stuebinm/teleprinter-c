@@ -13,5 +13,9 @@ char* include_doc_method (struct document* doc, struct macro* macro, struct char
 char* begin_env_method (struct document* doc, struct macro* macro, struct charv** argv);
 char* end_env_method (struct document* doc, struct macro* macro, struct charv** argv);
 
+char* message_method (struct document* doc, struct macro* macro, struct charv** argv);
+char* error_method (struct document* doc, struct macro* macro, struct charv** argv);
+
+char* ifthenelse_method (struct document* doc, struct macro* macro, struct charv** argv);
 
 #endif

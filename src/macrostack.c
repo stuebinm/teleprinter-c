@@ -23,17 +23,25 @@ struct mstack* new_macrostack () {
     mstack_set_macro (ret, "ctag", 1, 0, &custom_method, "</#1>", true);
     mstack_set_macro (ret, "tag", 3, 1, &custom_method, "\\otag{#2 #1}#3\\ctag{#2}", false);
     
+    // control commands
+    mstack_set_macro (ret, "message", 1, 0, &message_method, 0, true);
+    mstack_set_macro (ret, "error", 1, 0, &error_method, 0, true);
+    mstack_set_macro (ret, "include", 1, 0, &include_doc_method, 0, true);
+    mstack_set_macro (ret, "ifthenelse", 3, 0, &ifthenelse_method, 0, false);
+    
+    
+    // boolean values
+    mstack_set_macro (ret, "no", 0, 0, &custom_method, " ", true);
+    mstack_set_macro (ret, "yes", 0, 0, &custom_method, "yes", true);
+    
+     // the all-important \newcommand
+    mstack_set_macro (ret, "newcommand", 4, 2, &newcommand_method, 0, false);
+    
      // a few basic commands for testing
     //mstack_set_macro (ret, "emph", 1, &custom_method, "\\tag{em}{#1}", false);
     mstack_set_macro (ret, "chapter*", 1, 0, &custom_method, "\\tag{h2}{#1}", false);
     mstack_set_macro (ret, "part", 1, 0, &custom_method, "\\tag{h1}{#1}", false);
     mstack_set_macro (ret, "chbegin", 2, 0, &custom_method, "\\tag{h4}{#1}\\tag{b}{#2}", false);
-    mstack_set_macro (ret, "enquote", 1, 0, &custom_method, "“#1”", false);
-    
-    mstack_set_macro (ret, "include", 1, 0, &include_doc_method, 0, true);
-    
-     // the all-important \newcommand
-    mstack_set_macro (ret, "newcommand", 4, 2, &newcommand_method, 0, false);
     
      // env testing
     mstack_set_macro (ret, "begin", 0, 0, &begin_env_method, 0, false);

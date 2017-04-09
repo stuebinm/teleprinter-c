@@ -10,6 +10,7 @@
 #define PREMATURE_ENV_ERROR 5
 #define NON_DOC_ERROR 6
 #define NEWCOMMAND_ERROR 7
+#define USEREXIT 8
 
  // maximum length for lines in files (in bytes!)
 #define DEFAULT_FILEWIDTH 100

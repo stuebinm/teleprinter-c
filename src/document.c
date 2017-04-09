@@ -88,8 +88,8 @@ struct strin_data {
 int fetch_from_string (struct layer* l) {
     struct strin_data* indata= (struct strin_data*) l->indata;
     char c = indata->string [indata->i];
-    if (c == '\0') return '}';
-    indata->i += 1;
+    if (c != '\0') indata->i += 1;
+    else return EOF;
     return c;
 }
 
