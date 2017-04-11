@@ -16,6 +16,12 @@ void charv_finalize (struct charv* charv);
 
 char* charv_isolate (struct charv* charv);
 
+/**
+ * charv_free:
+ * Frees the given charv struct.
+ * @charv: the object to free
+ * Returns: void.
+ * */
 void charv_free (struct charv* charv);
 void charv_array_free (struct charv** array, int l);
 

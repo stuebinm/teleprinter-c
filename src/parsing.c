@@ -146,6 +146,7 @@ int skip_whitespace (struct document* doc) {
 			    return s;
 	    }
 	} while (document_fetchc (doc));
+    return 0;
 }
 
 /**
@@ -313,7 +314,8 @@ void parse_command (struct document* doc) {
                      // free memory
 				    charv_free (ret);
                 }
-                // prints a debug-message if the layer stack has fewer than two entries (preventing it from printing messages for all the \tag-macros).
+                // prints a debug-message if the layer stack has fewer than two
+                // entries (preventing it from printing messages for all the \tag-macros).
 		        //if (doc->layerstack<2) macro_log (name->array);
 				
 				free (output);
