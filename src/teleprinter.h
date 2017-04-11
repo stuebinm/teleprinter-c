@@ -1,7 +1,11 @@
 #ifndef TELEPRINTER_H
 #define TELEPRINTER_H
 
-void print_document (FILE* input, FILE* output, FILE* log, FILE* err);
+#include "charv.h"
+
+void print_document (struct charv* prefix, FILE* log, FILE* err);
+
+//void print_document (FILE* input, FILE* output, FILE* log, FILE* err);
 
 
 #endif

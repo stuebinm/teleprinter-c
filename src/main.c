@@ -14,7 +14,7 @@ int main (int argc, char** argv) {
 	} else if (argc < 2) {
 	    error_exit (1, "This programm takes at least one argument!");
 	}
-    
+    /*
     FILE* input = fopen (argv[1], "r");
     FILE* output;
     if (argc >= 3) {
@@ -31,13 +31,24 @@ int main (int argc, char** argv) {
         charv_finalize (outname);
 		output = fopen (outname->array, "w");
 		charv_free (outname);
+    }*/
+    
+    struct charv* prefix = new_charv (10);
+    char c;
+    int i = 0;
+    while ( (c = argv[1][i]) != '.') {
+        charv_append (prefix, c);
+        i += 1;
     }
     
     FILE* logfile;
     if (argc >= 4) logfile = fopen ("printer.log", "w");
     else logfile = stderr;
 
-    print_document (input, output, logfile, stderr);
+    //print_document (input, output, logfile, stderr);
+    
+    print_document (prefix, logfile, stderr);
+    
     msg_log ("printed document", argv[1]);
     msg_simple ("\n");
 	

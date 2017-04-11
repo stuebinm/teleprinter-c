@@ -21,7 +21,8 @@ void put_printout (struct layer* l, char* format) {
 }
 
 
-void print_document (FILE* l_input, FILE* l_output, FILE* log, FILE* err) {
+//void print_document (FILE* l_input, FILE* l_output, FILE* log, FILE* err) {
+void print_document (struct charv* prefix, FILE* log, FILE* err) {
     
     FILE* logstacked = LOGFILE;
     FILE* errstacked = ERRFILE;
@@ -29,8 +30,23 @@ void print_document (FILE* l_input, FILE* l_output, FILE* log, FILE* err) {
     LOGFILE = log;
     ERRFILE = err;
     
-    input = l_input;
+    /*input = l_input;
     output = l_output;
+    */
+    
+    struct charv* inputname = new_charv (prefix->length);
+    charv_append_array (inputname, prefix->array);
+    charv_append_array (inputname, ".tex");
+    charv_finalize (inputname);
+    input = fopen (charv_isolate (inputname), "r");
+    
+    
+    struct charv* outputname = new_charv (prefix->length);
+    charv_append_array (outputname, prefix->array);
+    charv_append_array (outputname, ".html");
+    charv_finalize (outputname);
+    output = fopen (charv_isolate (outputname), "w");
+
     
     if (LOGFILE == stderr) {
         struct winsize w;
@@ -43,6 +59,7 @@ void print_document (FILE* l_input, FILE* l_output, FILE* log, FILE* err) {
 	if (input != 0) {
 		
 		struct document* doc = new_document_from_file (input);
+		doc->prefix = prefix;
 
 		if (output == 0) error_exit (UNKNOWN_FILE_ERROR, "File Error");
 		

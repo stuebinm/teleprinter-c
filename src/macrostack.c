@@ -27,6 +27,7 @@ struct mstack* new_macrostack () {
     mstack_set_macro (ret, "message", 1, 0, &message_method, 0, true);
     mstack_set_macro (ret, "error", 1, 0, &error_method, 0, true);
     mstack_set_macro (ret, "include", 1, 0, &include_doc_method, 0, true);
+    mstack_set_macro (ret, "writefile", 2, 0, &file_method, 0, true);
     mstack_set_macro (ret, "ifthenelse", 3, 0, &ifthenelse_method, 0, false);
     
     

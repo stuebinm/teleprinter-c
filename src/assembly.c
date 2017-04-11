@@ -32,6 +32,38 @@ char* ctag_method (struct document* doc, struct macro* macro, struct charv** arg
     return charv_isolate (ret);
 }
 
+char* file_method (struct document* doc, struct macro* macro, struct charv** argv) {
+    
+    struct charv* outname = new_charv (doc->prefix->length);
+    charv_append_array (outname, doc->prefix->array);
+    charv_append (outname, '_');
+    charv_append_array (outname, argv[0]->array);
+    charv_finalize (outname);
+    
+    FILE* file = fopen (charv_isolate (outname), "w");
+    
+    if (file == 0) {
+        error_exit (FILE_ERROR, "Could not write file!");
+    }
+    
+    struct charv* output = new_charv (10);
+    document_push_scope (doc);
+    document_push_layer_command (doc, argv[1]->array, output);
+    parse_main_loop (doc);
+    document_pop_layer_command (doc);
+    document_pop_scope (doc);
+    charv_finalize (output);
+    
+    fprintf (file, "%s", output->array);
+    fclose (file);
+    
+    msg_log ("wrote file", argv[0]->array);
+    
+    charv_free (output);
+    return calloc (1, sizeof (char));
+}
+
+
 
 char* newcommand_method (struct document* doc, struct macro* macro, struct charv** argv) {
     msg_log ("new macro", argv[2]->array);

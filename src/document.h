@@ -21,6 +21,7 @@ struct document {
 	int c;
 	int wordc;
 	int layerstack;
+	struct charv* prefix;
 	stream_putc* printc_base;
 	stream_printf* printf_base;
 };

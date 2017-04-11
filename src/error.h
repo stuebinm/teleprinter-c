@@ -11,8 +11,9 @@
 #define NON_DOC_ERROR 6
 #define NEWCOMMAND_ERROR 7
 #define USEREXIT 8
+#define FILE_ERROR 9
 
- // maximum length for lines in files (in bytes!)
+ // maximum length for lines in files (in bytes, not chars!)
 #define DEFAULT_FILEWIDTH 100
 
 int LOGWIDTH;
