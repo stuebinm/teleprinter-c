@@ -19,9 +19,9 @@ struct mstack* new_macrostack () {
     ret->htable = calloc (ret->size, sizeof (struct macro*));
     
     // these are the baseline commands used to output all html tags.
-    mstack_set_macro (ret, "otag", 1, 0, &custom_method, "<#1>", true);
-    mstack_set_macro (ret, "ctag", 1, 0, &custom_method, "</#1>", true);
-    mstack_set_macro (ret, "tag", 3, 1, &custom_method, "\\otag{#2 #1}#3\\ctag{#2}", false);
+    mstack_set_macro (ret, "otag", 1, 0, &otag_method, 0, true);
+    mstack_set_macro (ret, "ctag", 1, 0, &ctag_method, 0, true);
+    mstack_set_macro (ret, "tag", 3, 1, &custom_method, "\\otag{#2#1}#3\\ctag{#2}", false);
     
     // control commands
     mstack_set_macro (ret, "message", 1, 0, &message_method, 0, true);

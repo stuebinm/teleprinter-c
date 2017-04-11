@@ -7,6 +7,32 @@
 
 #include "error.h"
 
+char* otag_method (struct document* doc, struct macro* macro, struct charv** argv) {
+    struct charv* ret = new_charv (argv[0]->length+2);
+    charv_append (ret, '<');
+    charv_append_array (ret, argv[0]->array);
+    charv_append (ret, '>');
+    charv_finalize (ret);
+    tagstack_push (doc->tagstack, charv_isolate (argv[0]));
+    free (argv);
+    return charv_isolate (ret);
+}
+
+char* ctag_method (struct document* doc, struct macro* macro, struct charv** argv) {
+    struct charv* ret = new_charv (argv[0]->length+3);
+    charv_append (ret, '<');
+    charv_append (ret, '/');
+    charv_append_array (ret, argv[0]->array);
+    charv_append (ret, '>');
+    charv_finalize (ret);
+    if (!tagstack_pop (doc->tagstack, argv[0]->array)) {
+        error_exit (1, "Tags don't match!");
+    }
+    charv_array_free (argv, 1);
+    return charv_isolate (ret);
+}
+
+
 char* newcommand_method (struct document* doc, struct macro* macro, struct charv** argv) {
     msg_log ("new macro", argv[2]->array);
     int argc = 0;

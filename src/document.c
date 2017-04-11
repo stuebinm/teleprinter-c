@@ -34,6 +34,7 @@ struct document* new_document_from_file (FILE* input) {
 	ret->layerstack = 0;
 	
 	ret->mstack = new_macrostack ();
+	ret->tagstack = new_tagstack ();
 	document_fetchc (ret);
 	
 	return ret;
@@ -52,6 +53,7 @@ void free_document (struct document* doc) {
         iter = next;
     }
     macrostack_free (doc->mstack);
+    free_tagstack (doc->tagstack);
     free (doc);
 }
 

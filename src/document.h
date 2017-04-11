@@ -5,6 +5,7 @@
 
 #include "charv.h"
 #include "macrostack.h"
+#include "tagstack.h"
 
 struct document;
 struct layer;
@@ -16,6 +17,7 @@ typedef int (stream_fetchc) (struct layer* l);
 struct document {
 	struct layer* top;
 	struct mstack* mstack;
+	struct tagstack* tagstack;
 	int c;
 	int wordc;
 	int layerstack;
