@@ -22,6 +22,7 @@ struct document {
 	int wordc;
 	int layerstack;
 	struct charv* prefix;
+	struct charv* localdir;
 	stream_putc* printc_base;
 	stream_printf* printf_base;
 };

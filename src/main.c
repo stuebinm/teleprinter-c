@@ -1,8 +1,11 @@
 #include <stdio.h>
+#include <unistd.h>
+#include <string.h>
 
 #include "teleprinter.h"
 #include "charv.h"
 #include "error.h"
+
 
 int main (int argc, char** argv) {
 
@@ -14,24 +17,6 @@ int main (int argc, char** argv) {
 	} else if (argc < 2) {
 	    error_exit (1, "This programm takes at least one argument!");
 	}
-    /*
-    FILE* input = fopen (argv[1], "r");
-    FILE* output;
-    if (argc >= 3) {
-        output = fopen (argv[2], "w");
-    } else { // simple code to construct a fallback output name in case none was given.
-        struct charv* outname = new_charv (10);
-        char c;
-        int i = 0;
-        while ( (c = argv[1][i]) != '.') {
-            charv_append (outname, c);
-            i++;
-        }
-        charv_append_array (outname, ".html");
-        charv_finalize (outname);
-		output = fopen (outname->array, "w");
-		charv_free (outname);
-    }*/
     
     struct charv* prefix = new_charv (10);
     char c;
@@ -40,14 +25,30 @@ int main (int argc, char** argv) {
         charv_append (prefix, c);
         i += 1;
     }
+    charv_finalize (prefix);
+    
+    struct charv* workingdir = new_charv (prefix->length);
+    struct charv* shortdir = new_charv (10);
+    i = 0;
+    while ( (c = prefix->array[i]) != '\0') {
+        charv_append (shortdir, c);
+        if (c == '/') {
+            charv_append_array (workingdir, charv_isolate (shortdir));
+            shortdir = new_charv (10);
+        }
+        i++;
+    }
+    charv_finalize (workingdir);
+    charv_finalize (shortdir);
+    charv_free (shortdir);
+    
+    fprintf (stderr, "workingdir: '%s'", workingdir->array);
     
     FILE* logfile;
     if (argc >= 4) logfile = fopen ("printer.log", "w");
     else logfile = stderr;
 
-    //print_document (input, output, logfile, stderr);
-    
-    print_document (prefix, logfile, stderr);
+    print_document (prefix, workingdir, logfile, stderr);
     
     msg_log ("printed document", argv[1]);
     msg_simple ("\n");

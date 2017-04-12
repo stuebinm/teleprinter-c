@@ -22,7 +22,7 @@ void put_printout (struct layer* l, char* format) {
 
 
 //void print_document (FILE* l_input, FILE* l_output, FILE* log, FILE* err) {
-void print_document (struct charv* prefix, FILE* log, FILE* err) {
+void print_document (struct charv* prefix, struct charv* workingdir, FILE* log, FILE* err) {
     
     FILE* logstacked = LOGFILE;
     FILE* errstacked = ERRFILE;
@@ -60,6 +60,7 @@ void print_document (struct charv* prefix, FILE* log, FILE* err) {
 		
 		struct document* doc = new_document_from_file (input);
 		doc->prefix = prefix;
+		doc->localdir = workingdir;
 
 		if (output == 0) error_exit (UNKNOWN_FILE_ERROR, "File Error");
 		

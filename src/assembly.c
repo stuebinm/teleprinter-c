@@ -134,15 +134,23 @@ char* custom_method (struct document* doc, struct macro* macro, struct charv** a
 char* include_doc_method (struct document* doc, struct macro* macro, struct charv** argv) {
     
     
-    FILE* sinput = fopen (argv[0]->array, "r");
-    if (sinput == 0) printf ("file error!\n");
+    struct charv* filename = new_charv (doc->localdir->length);
+    charv_append_array (filename, doc->localdir->array);
+    charv_append_array (filename, argv[0]->array);
+    charv_finalize (filename);
+    
+    msg_log ("included file", filename->array);
+    
+    FILE* sinput = fopen (charv_isolate (filename), "r");
+    if (sinput == 0) {
+        error_exit (FILE_ERROR, "file that was to be \\included could not be found.");
+    }
     
     document_push_layer_doc (doc, sinput);
     parse_main_loop (doc);
     document_pop_layer (doc);
     
     fclose (sinput);
-    
     charv_array_free (argv, macro->argc);
     return calloc (1, sizeof (char));
 }
